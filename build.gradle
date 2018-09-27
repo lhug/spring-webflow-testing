@@ -1,0 +1,20 @@
+apply plugin: 'java'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile(
+		'org.projectlombok:lombok:1.18.2'
+	)
+	
+	compileOnly(
+		'junit:junit:4.12',
+		'org.springframework.webflow:spring-webflow:2.4.2.RELEASE'
+	)
+
+	testCompile(
+		'org.hamcrest:hamcrest-library:1.3'
+	)
+}
