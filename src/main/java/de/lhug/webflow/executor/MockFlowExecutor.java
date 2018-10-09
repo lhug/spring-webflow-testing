@@ -1,5 +1,6 @@
 package de.lhug.webflow.executor;
 
+import org.springframework.util.Assert;
 import org.springframework.webflow.context.ExternalContext;
 import org.springframework.webflow.core.collection.MutableAttributeMap;
 import org.springframework.webflow.definition.FlowDefinition;
@@ -34,9 +35,7 @@ public class MockFlowExecutor {
 	}
 
 	public void resumeFlow(ExternalContext context) {
-		if (flowExecution == null) {
-			throw new IllegalStateException("Cannot resume flow before it was started!");
-		}
+		Assert.state(flowExecution != null, "Flow must be started before it can be resumed");
 		flowExecution.resume(context);
 	}
 
