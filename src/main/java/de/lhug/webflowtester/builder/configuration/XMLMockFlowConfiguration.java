@@ -22,6 +22,9 @@ public class XMLMockFlowConfiguration extends ExternalizedMockFlowConfiguration 
     /**
      * Constructs this configuration object using the given {@code offer} as the
      * main flow resource.
+     * 
+     * @param offer
+     *            an Object representing an XML Flow Resource Location
      */
     public XMLMockFlowConfiguration(Object offer) {
         super(offer);
@@ -50,10 +53,10 @@ public class XMLMockFlowConfiguration extends ExternalizedMockFlowConfiguration 
      * {@link #withBasePath(String)} apply here as well.
      * 
      * @return an {@link Collections#unmodifiableList(List) unmodifiable} view
-     *         of the registeres {@link FlowDefinitionResource}s
+     *         of the registered {@link FlowDefinitionResource}s
      * 
-     * @see {@link #withBasePath(String)}
-     * @see {@link #createResource(Object)}
+     * @see #withBasePath(String)
+     * @see #createResource(Object)
      */
     public List<FlowDefinitionResource> getFlowResources() {
         if (resources == null) {
