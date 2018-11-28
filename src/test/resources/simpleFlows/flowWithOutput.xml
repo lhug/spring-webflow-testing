@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+                          http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+
+	<input name="to" type="string" />
+	<decision-state id="decider">
+		<if test="flowScope.to == 'redirect'" then="redirect" />
+		<if test="flowScope.to == 'output'" then="output" else="stop" />
+	</decision-state>
+	
+	<view-state id="stop" />
+	
+	<end-state id="redirect" view="externalRedirect:http://www.google.de" />
+	
+	<end-state id="output">
+		<output name="out" value="'hooray'"/>
+	</end-state>
+</flow>
