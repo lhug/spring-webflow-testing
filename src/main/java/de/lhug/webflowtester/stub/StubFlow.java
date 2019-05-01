@@ -11,7 +11,6 @@ import org.springframework.webflow.definition.FlowDefinition;
 import org.springframework.webflow.definition.registry.FlowDefinitionHolder;
 import org.springframework.webflow.engine.EndState;
 import org.springframework.webflow.engine.Flow;
-import org.springframework.webflow.execution.FlowExecutionOutcome;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -45,8 +44,9 @@ public class StubFlow implements FlowDefinitionHolder {
      * @param flowId
      *            the String identifying the flow, not {@code null}
      * @param endStateId
-     *            the String to be emitted as {@link FlowExecutionOutcome} id,
-     *            not {@code null}
+     *            the String to be emitted as
+     *            {@link org.springframework.webflow.execution.FlowExecutionOutcome}
+     *            id, not {@code null}
      */
     public StubFlow(String flowId, String endStateId) {
         Assert.notNull(flowId, "Flow Id may not be null");
@@ -62,7 +62,8 @@ public class StubFlow implements FlowDefinitionHolder {
      * will trigger a Flow Rebuild
      * 
      * @param endStateId
-     *            the new String to be assigned as {@link FlowExecutionOutcome},
+     *            the new String to be assigned as
+     *            {@link org.springframework.webflow.execution.FlowExecutionOutcome},
      *            not {@code null}
      */
     public void setEndStateId(String endStateId) {
@@ -87,6 +88,15 @@ public class StubFlow implements FlowDefinitionHolder {
         return cachedFlow;
     }
 
+    /**
+     * Used to fetch the input arguments passed to the flow
+     * 
+     * Specifically, this creates a copy of all captured input arguments, clears
+     * all captured input arguments, and then returns the copy as an
+     * {@link AttributeMap}
+     * 
+     * @return a copy of all captured input attributes, never <code>null</code>
+     */
     public AttributeMap getInputAttributes() {
         MutableAttributeMap result = new LocalAttributeMap();
         result.putAll(inputAttributes);
@@ -94,6 +104,17 @@ public class StubFlow implements FlowDefinitionHolder {
         return result;
     }
 
+    /**
+     * Adds a single Parameter to be emitted when the flow ends
+     * 
+     * This can be used to generate different return values from the sub flow,
+     * apart from the obvious end state id.
+     * 
+     * @param key
+     *            the String key to which the value will be bound
+     * @param value
+     *            the actual value Object
+     */
     public void addOutputAttribute(String key, Object value) {
         outputAttributes.put(key, value);
     }

@@ -9,10 +9,8 @@ import java.util.Objects;
 
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.webflow.context.ExternalContext;
 import org.springframework.webflow.core.collection.AttributeMap;
 import org.springframework.webflow.core.collection.LocalAttributeMap;
-import org.springframework.webflow.definition.registry.FlowDefinitionHolder;
 import org.springframework.webflow.engine.Flow;
 import org.springframework.webflow.engine.impl.FlowExecutionImpl;
 import org.springframework.webflow.engine.impl.FlowExecutionImplFactory;
@@ -33,9 +31,8 @@ import lombok.RequiredArgsConstructor;
  * common assertions. The passed {@link MockFlowBuilder} supplies the
  * {@link Flow} to be tested, which in turn will be built once and then kept,
  * meaning that this class does <b>not</b> support Flows stored in
- * {@link FlowDefinitionHolder}s. A typical test case, given a simple flow like
- * so
- * <p>
+ * {@link org.springframework.webflow.definition.registry.FlowDefinitionHolder}s.
+ * A typical test case, given a simple flow like so
  * 
  * <pre>
  * &lt;view-state id=&quot;start&quot;&gt;
@@ -56,7 +53,7 @@ import lombok.RequiredArgsConstructor;
  * 
  * tester.assertFlowOutcomeIs("end");
  * </pre>
- * <p>
+ * 
  * All assertions will throw {@link IllegalStateException} when invoked at the
  * wrong time, e.G. an outcome-assertion before the flow was started.
  *
@@ -156,15 +153,11 @@ public class MockFlowTester {
      * This creates a new {@link FlowExecution}, discarding any previous
      * Executions, and sets the current state to the passed {@code stateId}. The
      * resulting state is as if the flow had just entered the given state,
-     * meaning that the declared <code><on-entry></code> directives are
-     * considered to be finished.
-     * <p>
-     * To make this obvious: this does <b>not</b> actually call the
-     * entry-actions.
-     * <p>
-     * This is used to avoid having to run through the entire flow and test
-     * states in isolation. After this has been called, the current flow is
-     * active.
+     * meaning that the declared {@code<on-entry>} directives are considered to
+     * be finished. To make this obvious: this does <b>not</b> actually call the
+     * entry-actions. This is used to avoid having to run through the entire
+     * flow and test states in isolation. After this has been called, the
+     * current flow is active.
      * 
      * @param stateId
      *            the state to enter
@@ -179,10 +172,9 @@ public class MockFlowTester {
      * 
      * Before this is called, an {@link #setEventId(String) event} must be set
      * to allow continuation of the flow. The event is then used to determine
-     * the next transition of the flow.
-     * <p>
-     * Every call of this method is being treated as a new Request, meaning that
-     * any previously given Request parameters are discarded.
+     * the next transition of the flow. Every call of this method is being
+     * treated as a new Request, meaning that any previously given Request
+     * parameters are discarded.
      * 
      * @throws IllegalStateException
      *             when no event id is set or no flow execution is available

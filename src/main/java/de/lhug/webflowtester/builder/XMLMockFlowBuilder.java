@@ -1,24 +1,21 @@
 package de.lhug.webflowtester.builder;
 
 import org.springframework.webflow.config.FlowDefinitionResource;
-import org.springframework.webflow.engine.Flow;
 import org.springframework.webflow.engine.builder.FlowBuilder;
 import org.springframework.webflow.engine.builder.model.FlowModelFlowBuilder;
-import org.springframework.webflow.engine.model.FlowModel;
 import org.springframework.webflow.engine.model.builder.DefaultFlowModelHolder;
 import org.springframework.webflow.engine.model.builder.FlowModelBuilder;
 import org.springframework.webflow.engine.model.builder.xml.XmlFlowModelBuilder;
 import org.springframework.webflow.engine.model.registry.FlowModelHolder;
 import org.springframework.webflow.engine.model.registry.FlowModelRegistry;
 import org.springframework.webflow.engine.model.registry.FlowModelRegistryImpl;
-import org.springframework.webflow.test.MockFlowBuilderContext;
 
 import de.lhug.webflowtester.builder.configuration.XMLMockFlowConfiguration;
 
 /**
  * Builds Flow Objects from XML Resources
  * 
- * @See {@link ExternalizedMockFlowBuilder}
+ * @see ExternalizedMockFlowBuilder
  *
  */
 public class XMLMockFlowBuilder extends ExternalizedMockFlowBuilder {
@@ -34,7 +31,8 @@ public class XMLMockFlowBuilder extends ExternalizedMockFlowBuilder {
      * 
      * @param configuration
      *            the {@link XMLMockFlowConfiguration} containing links to all
-     *            necessary Resources to build the {@link Flow}
+     *            necessary Resources to build the
+     *            {@link org.springframework.webflow.engine.Flow}
      */
     public XMLMockFlowBuilder(XMLMockFlowConfiguration configuration) {
         super(configuration);
@@ -43,7 +41,7 @@ public class XMLMockFlowBuilder extends ExternalizedMockFlowBuilder {
 
     /**
      * Creates the {@link FlowBuilder} which is used to construct the
-     * {@link FlowModel}.
+     * {@link org.springframework.webflow.engine.model.FlowModel}.
      * 
      * The process follows three steps:
      * <ol>
@@ -54,9 +52,9 @@ public class XMLMockFlowBuilder extends ExternalizedMockFlowBuilder {
      * {@code FlowModelHolder}</li>
      * </ol>
      * 
-     * @see {@link ExternalizedMockFlowBuilder#buildFlow() buildFlow}
-     * @see {@link ExternalizedMockFlowBuilder#registerBeans(MockFlowBuilderContext)
-     *      registerBeans}
+     * @see ExternalizedMockFlowBuilder#buildFlow() buildFlow
+     * @see ExternalizedMockFlowBuilder#registerBeans(MockFlowBuilderContext)
+     *      registerBeans
      */
     @Override
     protected FlowBuilder createFlowBuilder() {

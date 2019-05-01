@@ -6,10 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.Conventions;
 import org.springframework.webflow.definition.registry.FlowDefinitionHolder;
-import org.springframework.webflow.engine.Flow;
 
 import lombok.NoArgsConstructor;
 
@@ -17,7 +15,8 @@ import lombok.NoArgsConstructor;
  * A utility class to hold beans to be accessible in a tested flow.
  * 
  * Basically, this accepts beans which will in turn be passed to the
- * {@link Flow}s internal {@link ApplicationContext}
+ * {@link org.springframework.webflow.engine.Flow}s internal
+ * {@link org.springframework.context.ApplicationContext}
  *
  */
 @NoArgsConstructor
@@ -32,7 +31,7 @@ public class FlowTestContext {
      * The names of the spring beans are being derived from
      * {@link Conventions#getVariableName(Object) spring conventions}.
      * 
-     * @see {@link #addBean(Object)}
+     * @see #addBean(Object)
      * @param offers
      *            The spring beans to be registered with the flow context
      */
@@ -94,9 +93,10 @@ public class FlowTestContext {
      * Adds a bean with the given name to be registered.
      * 
      * This adds a bean object with the given name into the data structure that
-     * will later be extracted and used to create the {@link ApplicationContext}
-     * for the tested {@link Flow}. This readily accepts mock objects to allow
-     * easy dependency configuration.
+     * will later be extracted and used to create the
+     * {@link org.springframework.context.ApplicationContext} for the tested
+     * {@link org.springframework.webflow.engine.Flow}. This readily accepts
+     * mock objects to allow easy dependency configuration.
      * 
      * @param name
      *            The name the bean will be registered with
@@ -131,6 +131,15 @@ public class FlowTestContext {
         return Collections.unmodifiableList(subFlows);
     }
 
+    /**
+     * Adds a {@link FlowDefinitionHolder} implementation to the context.
+     * 
+     * The suggested class to use is {@link de.lhug.webflowtester.stub.StubFlow}
+     * as that is an easy to use implementation
+     * 
+     * @param subFlow
+     *            the {@link FlowDefinitionHolder} to be registered
+     */
     public void addSubFlow(FlowDefinitionHolder subFlow) {
         subFlows.add(subFlow);
     }

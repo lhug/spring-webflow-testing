@@ -1,13 +1,13 @@
 package de.lhug.webflowtester.builder;
 
 import org.springframework.webflow.engine.Flow;
-import org.springframework.webflow.execution.FlowExecution;
 
 /**
  * Base interface for all MockFlowBuilder implementations.
  * 
  * Implementation classes must let this return a valid and executable
- * {@link Flow} object which can be started in a {@link FlowExecution}.
+ * {@link Flow} object which can be started in a
+ * {@link org.springframework.webflow.execution.FlowExecution}.
  *
  */
 @FunctionalInterface
