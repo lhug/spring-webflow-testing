@@ -113,3 +113,15 @@ tester.resumeFlow(); // continues the execution
 tester.assertFlowExecutionHasEnded(); // asserts that the flow is inactive now
 tester.assertFlowOutcomeIs("endState"); // asserts that the end state id is "endState"
 ```
+
+#### Differences when calling start and resume
+
+The `MockFlowTester` is most often called with `startFlow` or `resumeFlow`. Both methods accept an optional `Map<? extends String, ? extends Object>`.
+Despite the fact, that both are named `inputArguments`, they have a different meaning. This is explained in the javadoc of the methods, but I feel that
+it should be mentioned here as well.
+
+When calling `startFlow`, the contents of the passed map will be used as **Flow Arguments**. They are being converted into an `AttributeMap`, which is in turn passed to the flow executor.
+This means that all contents of the map are present in the `FlowScope` of the current Flow execution, and as such, can be read into an `<input>` directive
+within the flow definition.
+
+When calling `resumeFlow`, the contents of the passed map will be used as **Request Parameters**, meaning they will be usd as either `MultipartFile`, `String[]` or `String`.

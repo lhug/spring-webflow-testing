@@ -3,12 +3,19 @@ package de.lhug.webflowtester.executor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
+import org.springframework.binding.message.Message;
+import org.springframework.binding.message.MessageBuilder;
+import org.springframework.binding.message.MessageContext;
 import org.springframework.webflow.core.collection.AttributeMap;
 import org.springframework.webflow.execution.FlowExecution;
 import org.springframework.webflow.test.MockExternalContext;
@@ -362,6 +369,30 @@ public class MockFlowTesterTest {
 
         assertThat(result, is(not(nullValue())));
         assertThat(result.isResponseComplete(), is(true));
+    }
+
+    @Test
+    public void shouldReturnAllMessages() throws Exception {
+        initConfigFrom("/simpleFlows/messageAddingFlow.xml");
+        context = new FlowTestContext();
+        context.addBean("service", new SomeService());
+        initSut();
+        sut.startFlowAt("start");
+        sut.setEventId("message");
+        sut.resumeFlow();
+
+        Set<Message> result = sut.getAllMessages();
+
+        assertThat(result, hasSize(1));
+        assertThat(result, contains(hasProperty("text", is("This is a message"))));
+    }
+
+    public static class SomeService {
+        public void addMessage(MessageContext messageContext) {
+            messageContext.addMessage(new MessageBuilder()
+                    .source("service")
+                    .info().defaultText("This is a message").build());
+        }
     }
 
 }

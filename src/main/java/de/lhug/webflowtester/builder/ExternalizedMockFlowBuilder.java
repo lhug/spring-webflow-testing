@@ -5,10 +5,10 @@ import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
 import org.springframework.webflow.engine.Flow;
 import org.springframework.webflow.engine.builder.FlowAssembler;
 import org.springframework.webflow.engine.builder.FlowBuilder;
-import org.springframework.webflow.test.MockFlowBuilderContext;
 
 import de.lhug.webflowtester.builder.configuration.ExternalizedMockFlowConfiguration;
 import de.lhug.webflowtester.builder.configuration.FlowTestContext;
+import de.lhug.webflowtester.builder.context.MockFlowBuilderContext;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -39,9 +39,9 @@ public abstract class ExternalizedMockFlowBuilder implements MockFlowBuilder {
     /**
      * Creates a ready-to-use {@link Flow} instance. This class caches the first
      * built {@link Flow} to allow for safe multiple calls, however that still
-     * should be avoided as the returned Object is mutable and not a defensive
-     * copy. Any changes to the returned object <em>will</em> write through to
-     * the cached instance.
+     * should be avoided as the returned Object is mutable and not a defensive copy.
+     * Any changes to the returned object <em>will</em> write through to the cached
+     * instance.
      * 
      * Building a Flow with this follows this order:
      * <ol>
@@ -73,27 +73,24 @@ public abstract class ExternalizedMockFlowBuilder implements MockFlowBuilder {
 
     /**
      * Registers beans in the internal
-     * {@link org.springframework.context.ApplicationContext
-     * ApplicationContext}.
+     * {@link org.springframework.context.ApplicationContext ApplicationContext}.
      * 
      * The passed {@link MockFlowBuilderContext} allows for registering other
-     * objects as well. It can be used to register {@link Flow} implementations,
-     * it is suggested to use {@link #registerStubFlows(FlowDefinitionRegistry)}
-     * for this. Subclasses may override this to further enrich the context. By
-     * default, if a {@link FlowTestContext} is passed to the builder, this
-     * method will register all beans defined in the passed
-     * {@link FlowTestContext} with their respective names in the Flows
-     * {@link org.springframework.context.ApplicationContext
-     * ApplicationContext}.
+     * objects as well. It can be used to register {@link Flow} implementations, it
+     * is suggested to use {@link #registerStubFlows(FlowDefinitionRegistry)} for
+     * this. Subclasses may override this to further enrich the context. By default,
+     * if a {@link FlowTestContext} is passed to the builder, this method will
+     * register all beans defined in the passed {@link FlowTestContext} with their
+     * respective names in the Flows
+     * {@link org.springframework.context.ApplicationContext ApplicationContext}.
      * 
      * This method is being called once by {@link #buildFlow()}, right before
      * {@link #registerStubFlows(FlowDefinitionRegistry)}.
      * 
-     * @param builderContext
-     *            the
-     *            {@link org.springframework.webflow.engine.builder.FlowBuilderContext
-     *            FlowBuilderContext} used to create the Flows
-     *            {@link org.springframework.context.ApplicationContext}.
+     * @param builderContext the
+     *                       {@link org.springframework.webflow.engine.builder.FlowBuilderContext
+     *                       FlowBuilderContext} used to create the Flows
+     *                       {@link org.springframework.context.ApplicationContext}.
      */
     protected void registerBeans(MockFlowBuilderContext builderContext) {
         if (context != null) {
@@ -112,13 +109,12 @@ public abstract class ExternalizedMockFlowBuilder implements MockFlowBuilder {
      * {@link FlowTestContext}.
      * <p>
      * Subclasses may override to add other implementations, like {@link Flow}s,
-     * directly to the registry. This is being called once by
-     * {@link #buildFlow()}, right before {@link #createFlowBuilder()}
+     * directly to the registry. This is being called once by {@link #buildFlow()},
+     * right before {@link #createFlowBuilder()}
      * 
-     * @param registry
-     *            the {@link FlowDefinitionRegistry} present in the
-     *            {@link org.springframework.webflow.engine.builder.FlowBuilderContext
-     *            FlowBuilderContext} used to build the {@link Flow} to test
+     * @param registry the {@link FlowDefinitionRegistry} present in the
+     *                 {@link org.springframework.webflow.engine.builder.FlowBuilderContext
+     *                 FlowBuilderContext} used to build the {@link Flow} to test
      */
     protected void registerStubFlows(FlowDefinitionRegistry registry) {
         if (context != null) {
@@ -134,8 +130,8 @@ public abstract class ExternalizedMockFlowBuilder implements MockFlowBuilder {
      * <li>a reference to the main resource</li>
      * <li>references to all required dependent resources</li>
      * </ul>
-     * If it does not, the Flow building will fail. This is being called once
-     * during {@link #buildFlow()}, right after
+     * If it does not, the Flow building will fail. This is being called once during
+     * {@link #buildFlow()}, right after
      * {@link #registerBeans(MockFlowBuilderContext)}.
      * 
      * @return a fully configured {@link FlowBuilder}
@@ -143,17 +139,15 @@ public abstract class ExternalizedMockFlowBuilder implements MockFlowBuilder {
     protected abstract FlowBuilder createFlowBuilder();
 
     /**
-     * Configures this builder to move all beans and SubFlows registered within
-     * the passed {@link FlowTestContext} into the Flows
-     * {@link org.springframework.context.ApplicationContext
-     * ApplicationContext}. An existing instance of {@link FlowTestContext} will
-     * be replaced with each successive call. To remove all Beans from the
-     * context, pass {@code null}.
+     * Configures this builder to move all beans and SubFlows registered within the
+     * passed {@link FlowTestContext} into the Flows
+     * {@link org.springframework.context.ApplicationContext ApplicationContext}. An
+     * existing instance of {@link FlowTestContext} will be replaced with each
+     * successive call. To remove all Beans from the context, pass {@code null}.
      * 
-     * @param context
-     *            the pre-registered beans to be moved into the
-     *            {@link org.springframework.context.ApplicationContext
-     *            ApplicationContext}
+     * @param context the pre-registered beans to be moved into the
+     *                {@link org.springframework.context.ApplicationContext
+     *                ApplicationContext}
      * @return this
      */
     public MockFlowBuilder withContext(FlowTestContext context) {

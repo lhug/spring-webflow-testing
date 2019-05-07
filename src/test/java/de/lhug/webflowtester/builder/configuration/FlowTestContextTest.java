@@ -133,8 +133,10 @@ public class FlowTestContextTest {
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void testName() throws Exception {
-        sut.getSubFlows().add(mock(FlowDefinitionHolder.class));
+    public void shouldReturnUnmodifiableListOfSubFlows() throws Exception {
+        List<FlowDefinitionHolder> subFlows = sut.getSubFlows();
+
+        subFlows.add(mock(FlowDefinitionHolder.class));
     }
 
     @Test
