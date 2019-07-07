@@ -6,8 +6,11 @@ import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
+import java.util.Locale;
+
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.webflow.definition.registry.NoSuchFlowDefinitionException;
 import org.springframework.webflow.engine.Flow;
 import org.springframework.webflow.test.MockRequestControlContext;
@@ -93,5 +96,28 @@ public class XMLMockFlowBuilderTest {
         Flow result = sut.buildFlow();
 
         result.getStateInstance("step").enter(new MockRequestControlContext(result));
+    }
+
+    @Test
+    public void shouldRegisterPassedMessages() throws Exception {
+        configuration = new XMLMockFlowConfiguration("/subFlows/flow.xml");
+        context.getMessages(Locale.getDefault()).addMessage("key", "value");
+        sut = new XMLMockFlowBuilder(configuration);
+        sut.withContext(context);
+        Flow flow = sut.buildFlow();
+
+        String result = flow.getApplicationContext().getMessage("key", null, Locale.getDefault());
+
+        assertThat(result, is("value"));
+    }
+
+    @Test(expected = NoSuchMessageException.class)
+    public void shouldNotAddMessagesWhenContextIsNotSet() throws Exception {
+        configuration = new XMLMockFlowConfiguration("/subFlows/flow.xml");
+        context.getMessages(Locale.getDefault()).addMessage("key", "value");
+        sut = new XMLMockFlowBuilder(configuration);
+        Flow flow = sut.buildFlow();
+
+        flow.getApplicationContext().getMessage("key", null, Locale.getDefault());
     }
 }

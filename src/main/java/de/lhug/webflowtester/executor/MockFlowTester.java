@@ -3,19 +3,28 @@ package de.lhug.webflowtester.executor;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
+import org.springframework.binding.message.Message;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.webflow.context.ExternalContext;
 import org.springframework.webflow.core.collection.AttributeMap;
 import org.springframework.webflow.core.collection.LocalAttributeMap;
+import org.springframework.webflow.definition.StateDefinition;
 import org.springframework.webflow.engine.Flow;
 import org.springframework.webflow.engine.impl.FlowExecutionImpl;
 import org.springframework.webflow.engine.impl.FlowExecutionImplFactory;
 import org.springframework.webflow.execution.FlowExecution;
-import org.springframework.webflow.execution.FlowExecutionFactory;
+import org.springframework.webflow.execution.FlowExecutionListenerAdapter;
+import org.springframework.webflow.execution.RequestContext;
+import org.springframework.webflow.execution.View;
+import org.springframework.webflow.execution.factory.StaticFlowExecutionListenerLoader;
 import org.springframework.webflow.test.MockExternalContext;
 import org.springframework.webflow.test.MockParameterMap;
 
@@ -64,23 +73,22 @@ public class MockFlowTester {
     /**
      * Builds an instance of this using a {@link MockFlowBuilder}.
      * 
-     * The {@link MockFlowBuilder#buildFlow()} method is called before the
-     * instance is constructed, meaning the passed builder can be replaced with
-     * a lambda directly supplying a preconstructed {@link Flow} instance.
+     * The {@link MockFlowBuilder#buildFlow()} method is called before the instance
+     * is constructed, meaning the passed builder can be replaced with a lambda
+     * directly supplying a preconstructed {@link Flow} instance.
      * 
-     * @param builder
-     *            an implementation of {@link MockFlowBuilder} to supply the
-     *            {@link Flow} instance
+     * @param builder an implementation of {@link MockFlowBuilder} to supply the
+     *                {@link Flow} instance
      * @return an initialized MockFlowTester
-     * @throws NullPointerException
-     *             when the builder is null
+     * @throws NullPointerException when the builder is null
      */
     public static MockFlowTester from(MockFlowBuilder builder) {
         return new MockFlowTester(builder.buildFlow());
     }
 
-    private final FlowExecutionFactory executionFactory = new FlowExecutionImplFactory();
+    private final FlowExecutionImplFactory executionFactory = new FlowExecutionImplFactory();
     private final Flow testFlow;
+    private final MessageContextStoringFlowExecutionListener listener = new MessageContextStoringFlowExecutionListener();
 
     private FlowExecutionImpl execution;
     private MockExternalContext context;
@@ -102,9 +110,9 @@ public class MockFlowTester {
     /**
      * Starts the flow.
      * 
-     * Discards the previous {@link FlowExecution} if present, and all other
-     * passed information, and creates a fresh instance. This does not generate
-     * any warnings.
+     * Discards the previous {@link FlowExecution} if present, and all other passed
+     * information, and creates a fresh instance. This does not generate any
+     * warnings.
      * 
      * Methods on requiring an active session can be called after this.
      * 
@@ -119,15 +127,14 @@ public class MockFlowTester {
     /**
      * Starts the flow with the given input arguments.
      * 
-     * Discards the previous {@link FlowExecution} if present, and all other
-     * passed information, and creates a fresh instance, directly passing the
-     * input arguments. This does not generate any warnings.
+     * Discards the previous {@link FlowExecution} if present, and all other passed
+     * information, and creates a fresh instance, directly passing the input
+     * arguments. This does not generate any warnings.
      * 
      * Methods on requiring an active session can be called after this.
      * 
-     * @param inputArguments
-     *            a {@link Map} containing the Attributes to be passed to the
-     *            {@link Flow}, not <code>null</code>
+     * @param inputArguments a {@link Map} containing the Attributes to be passed to
+     *                       the {@link Flow}, not <code>null</code>
      * @see #getScope()
      * @see #assertCurrentStateIs(String)
      * @see #resumeFlow()
@@ -144,23 +151,27 @@ public class MockFlowTester {
     }
 
     private void initFlowExecution() {
+        registerFlowExecutionListener();
         execution = (FlowExecutionImpl) executionFactory.createFlowExecution(testFlow);
+    }
+
+    private void registerFlowExecutionListener() {
+        executionFactory
+                .setExecutionListenerLoader(new StaticFlowExecutionListenerLoader(listener));
     }
 
     /**
      * Starts the flow execution at the given state id
      * 
-     * This creates a new {@link FlowExecution}, discarding any previous
-     * Executions, and sets the current state to the passed {@code stateId}. The
-     * resulting state is as if the flow had just entered the given state,
-     * meaning that the declared {@code<on-entry>} directives are considered to
-     * be finished. To make this obvious: this does <b>not</b> actually call the
-     * entry-actions. This is used to avoid having to run through the entire
-     * flow and test states in isolation. After this has been called, the
-     * current flow is active.
+     * This creates a new {@link FlowExecution}, discarding any previous Executions,
+     * and sets the current state to the passed {@code stateId}. The resulting state
+     * is as if the flow had just entered the given state, meaning that the declared
+     * {@code<on-entry>} directives are considered to be finished. To make this
+     * obvious: this does <b>not</b> actually call the entry-actions. This is used
+     * to avoid having to run through the entire flow and test states in isolation.
+     * After this has been called, the current flow is active.
      * 
-     * @param stateId
-     *            the state to enter
+     * @param stateId the state to enter
      */
     public void startFlowAt(String stateId) {
         initFlowExecution();
@@ -170,14 +181,13 @@ public class MockFlowTester {
     /**
      * Continues the active flow execution.
      * 
-     * Before this is called, an {@link #setEventId(String) event} must be set
-     * to allow continuation of the flow. The event is then used to determine
-     * the next transition of the flow. Every call of this method is being
-     * treated as a new Request, meaning that any previously given Request
-     * parameters are discarded.
+     * Before this is called, an {@link #setEventId(String) event} must be set to
+     * allow continuation of the flow. The event is then used to determine the next
+     * transition of the flow. Every call of this method is being treated as a new
+     * Request, meaning that any previously given Request parameters are discarded.
      * 
-     * @throws IllegalStateException
-     *             when no event id is set or no flow execution is available
+     * @throws IllegalStateException when no event id is set or no flow execution is
+     *                               available
      * 
      * @see FlowExecution#resume(ExternalContext)
      * @see #setEventId(String)
@@ -189,12 +199,12 @@ public class MockFlowTester {
     /**
      * Continues the active flow execution with the given request parameters.
      * 
-     * Before this is called, an {@link #setEventId(String) event} must be set
-     * to allow continuation of the flow. The event is then used to determine
-     * the next transition of the flow.
+     * Before this is called, an {@link #setEventId(String) event} must be set to
+     * allow continuation of the flow. The event is then used to determine the next
+     * transition of the flow.
      * <p>
-     * Every call of this method is being treated as a new Request, meaning that
-     * any previously given Request parameters are discarded.
+     * Every call of this method is being treated as a new Request, meaning that any
+     * previously given Request parameters are discarded.
      * <p>
      * The given RequestParameters support three Object types:
      * <ul>
@@ -206,11 +216,10 @@ public class MockFlowTester {
      * {@link String}[] will be converted to String using
      * {@link Objects#toString(Object)}
      * 
-     * @param inputArguments
-     *            a {@link Map} containing the current RequestParameters
+     * @param inputArguments a {@link Map} containing the current RequestParameters
      * 
-     * @throws IllegalStateException
-     *             when no event id is set or no flow execution is available
+     * @throws IllegalStateException when no event id is set or no flow execution is
+     *                               available
      * 
      * @see FlowExecution#resume(ExternalContext)
      * @see #setEventId(String)
@@ -242,8 +251,7 @@ public class MockFlowTester {
     /**
      * Sets the event to be called on the next resume operation
      * 
-     * @param eventId
-     *            the next event id
+     * @param eventId the next event id
      * @see #resumeFlow()
      * @see #resumeFlow(Map)
      */
@@ -255,8 +263,7 @@ public class MockFlowTester {
      * Asserts that the current flow execution has ended, meaning an
      * {@link AssertionError} is raised if the flow has not ended
      * 
-     * @throws IllegalStateException
-     *             if no active {@link FlowExecution} is present
+     * @throws IllegalStateException if no active {@link FlowExecution} is present
      */
     public void assertFlowExecutionEnded() {
         assertActiveExecution();
@@ -272,14 +279,11 @@ public class MockFlowTester {
      * Asserts that the flow returned with the given outcome, meaning the given
      * endState Id.
      * 
-     * Will raise an {@link AssertionError} if the outcome id was not as
-     * expected.
+     * Will raise an {@link AssertionError} if the outcome id was not as expected.
      * 
-     * @param expectedOutcome
-     *            the expected flow execution outcome
-     * @throws IllegalStateException
-     *             if no {@link FlowExecution} is present or the current flow
-     *             execution has not ended
+     * @param expectedOutcome the expected flow execution outcome
+     * @throws IllegalStateException if no {@link FlowExecution} is present or the
+     *                               current flow execution has not ended
      */
     public void assertFlowOutcomeIs(String expectedOutcome) {
         assertActiveExecution();
@@ -297,9 +301,8 @@ public class MockFlowTester {
      * 
      * @return an {@link AttributeMap} containing all output attributes of the
      *         current flow.
-     * @throws IllegalStateException
-     *             if no {@link FlowExecution} is present or the current flow
-     *             execution has not ended
+     * @throws IllegalStateException if no {@link FlowExecution} is present or the
+     *                               current flow execution has not ended
      */
     public AttributeMap getOutputAttributes() {
         assertActiveExecution();
@@ -311,14 +314,12 @@ public class MockFlowTester {
     /**
      * Asserts that an external redirect to the passed url was rendered.
      * 
-     * Raises an {@link AssertionError} if the actual url differs from the
-     * passed url.
+     * Raises an {@link AssertionError} if the actual url differs from the passed
+     * url.
      * 
-     * @param url
-     *            The URL that should have been redirected to
-     * @throws IllegalStateException
-     *             if no {@link FlowExecution} is present or the current flow
-     *             execution has not ended
+     * @param url The URL that should have been redirected to
+     * @throws IllegalStateException if no {@link FlowExecution} is present or the
+     *                               current flow execution has not ended
      */
     public void assertExternalRedirectTo(String url) {
         assertActiveExecution();
@@ -333,11 +334,9 @@ public class MockFlowTester {
      * Raises an {@link AssertionError} if the current state id differs from the
      * passed stateId.
      * 
-     * @param stateId
-     *            the expected id of the current state
-     * @throws IllegalStateException
-     *             if no {@link FlowExecution} is present or the current flow
-     *             execution has ended
+     * @param stateId the expected id of the current state
+     * @throws IllegalStateException if no {@link FlowExecution} is present or the
+     *                               current flow execution has ended
      */
     public void assertCurrentStateIs(String stateId) {
         assertActiveExecution();
@@ -354,9 +353,8 @@ public class MockFlowTester {
      * Returns the Flow Scope Attributes of the current flow.
      * 
      * @return the {@link AttributeMap} containing the current Flow Scope
-     * @throws IllegalStateException
-     *             if no {@link FlowExecution} is present or the current flow
-     *             execution has ended
+     * @throws IllegalStateException if no {@link FlowExecution} is present or the
+     *                               current flow execution has ended
      */
     public AttributeMap getScope() {
         assertActiveExecution();
@@ -368,14 +366,29 @@ public class MockFlowTester {
     /**
      * Returns the last used {@link MockExternalContext}
      * 
-     * As every call of {@link #startFlow()} and {@link #resumeFlow()} creates a
-     * new instance of {@link MockExternalContext}, this only returns the last
-     * used context, which can then be asserted as desired.
+     * As every call of {@link #startFlow()} and {@link #resumeFlow()} creates a new
+     * instance of {@link MockExternalContext}, this only returns the last used
+     * context, which can then be asserted as desired.
      * 
-     * @return the last used {@link MockExternalContext}, or <code>null</code>
-     *         if no request has been sent
+     * @return the last used {@link MockExternalContext}, or <code>null</code> if no
+     *         request has been sent
      */
     public MockExternalContext getLastRequestContext() {
         return context;
+    }
+
+    public Set<Message> getAllMessages() {
+        assertActiveExecution();
+        return listener.messages;
+    }
+
+    private static class MessageContextStoringFlowExecutionListener extends FlowExecutionListenerAdapter {
+        public Set<Message> messages = new HashSet<>();
+
+        @Override
+        public void viewRendering(RequestContext context, View view, StateDefinition viewState) {
+            Message[] allMessages = context.getMessageContext().getAllMessages();
+            messages = new HashSet<>(Arrays.asList(allMessages));
+        }
     }
 }

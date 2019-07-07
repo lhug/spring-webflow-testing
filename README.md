@@ -8,11 +8,33 @@ This library is created with `JUnit 4.12` and `spring WebFlow 2.3.3-RELEASE`, ut
 
 ## Overview
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=lhug_spring-webflow-testing&metric=alert_status)](https://sonarcloud.io/dashboard?id=lhug_spring-webflow-testing)
+
 The Tester itself can directly run a Flow and allow assertions on it, as well as exposing several convenience getters.
 It automatically creates a new ExternalContext instance which is passed to the flow on every request, meaning that it is possible to follow the entire flow from start to end without worrying if certain actions are not executed.
 The Tester is being created by passing an instance of `de.lhug.webflowtester.builder.MockFlowBuilder`, a convenience interface exposing a single method returning a Flow instance.
 
-The library also offers an XMLMockFlowBuilder to build a testable flow definition from an XML resource, a FlowTestContext containing Beans and SubFlows, and a StubFlow-class which can be used to stub SubFlows.
+The library also offers an `XMLMockFlowBuilder` to build a testable flow definition from an XML resource, a `FlowTestContext` containing Beans and SubFlows, and a `StubFlow`-class which can be used to stub SubFlows.
+
+## Supported features
+
+* Databinding
+* Validation
+* Localized messages
+* Spring-Beans
+* Flow-inheritance
+* Passing input attributes at flow and view level
+* Accessing output attributes
+* Starting flow at specific state
+* Easy loading of XML-flows
+* Easy mocking of Subflows
+
+## Restrictions
+
+* Currently there is no way and no plan to support global flow attributes.
+* Currently there is no way of adding a preconfigured Spring-Context as provided by using the `SpringRunner`
+* Springs `Validator`-Bean is **not** being automatically instantiated. It can, however, be added manually.
+* All messages, that do not provide a default text, **must** be added explicitly. If not, a `NoSuchMessageException` is raised during runtime.
 
 ## Usage
 
@@ -31,6 +53,19 @@ FlowTestContext context = new FlowTestContext(bean1, bean2);
 
 It is, of course, possible to set the value directly, or to set a value with a specific id, by using the exposed `addBean(String, Object)` method.  
 Likwewise, this allows the addition of any kind of `FlowDefinitionHolder` as subflow, utilizing `addSubFlow(FlowDefinitionHolder)`. Plus, some extra state checking methods are present as well, such as `containsBean(String)` which allows to check if a bean has already been registered.
+
+Single localized messages can be added directly by using `context.addMessage(Locale, Key, Value)`, while successive messages can be added either builder-style or via a map containine all message keys and interpolations:
+
+```{java}
+Map<String, String> messages = // init messages
+context.addMessages(Locale, messages);
+
+// or
+
+context.getMessages(Locale)
+  .addMessage(key, value)
+  .addMessage(otherKey, otherValue);
+```
 
 ### de.lhug.webflowtester.builder.configuration.XMLMockFlowConfiguration
 
@@ -54,6 +89,13 @@ This can then be passed to the MockFlowTester, which in turn builds the actual f
 
 ```{java}
 new XMLMockFlowBuilder(configuration);
+```
+
+It also accepts the configured `FlowTestContext`:
+
+```{java}
+new XMLMockFlowBuilder(configuration)
+  .withContext(flowTestContext);
 ```
 
 ### de.lhug.webflowtester.stub.StubFlow
@@ -113,3 +155,15 @@ tester.resumeFlow(); // continues the execution
 tester.assertFlowExecutionHasEnded(); // asserts that the flow is inactive now
 tester.assertFlowOutcomeIs("endState"); // asserts that the end state id is "endState"
 ```
+
+#### Differences when calling start and resume
+
+The `MockFlowTester` is most often called with `startFlow` or `resumeFlow`. Both methods accept an optional `Map<? extends String, ? extends Object>`.
+Despite the fact, that both are named `inputArguments`, they have a different meaning. This is explained in the javadoc of the methods, but I feel that
+it should be mentioned here as well.
+
+When calling `startFlow`, the contents of the passed map will be used as **Flow Arguments**. They are being converted into an `AttributeMap`, which is in turn passed to the flow executor.
+This means that all contents of the map are present in the `FlowScope` of the current Flow execution, and as such, can be read into an `<input>` directive
+within the flow definition.
+
+When calling `resumeFlow`, the contents of the passed map will be used as **Request Parameters**, meaning they will be usd as either `MultipartFile`, `String[]` or `String`.
