@@ -18,11 +18,15 @@ import org.springframework.binding.message.MessageBuilder;
 import org.springframework.binding.message.MessageContext;
 import org.springframework.binding.message.MessageResolver;
 import org.springframework.core.style.ToStringCreator;
+import org.springframework.validation.MessageCodesResolver;
+import org.springframework.validation.Validator;
 import org.springframework.webflow.core.collection.ParameterMap;
 import org.springframework.webflow.definition.TransitionDefinition;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 import org.springframework.webflow.execution.View;
+import org.springframework.webflow.validation.ValidationHelper;
+import org.springframework.webflow.validation.WebFlowMessageCodesResolver;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +47,9 @@ public class MockView implements View {
     @Getter
     private final String viewId;
     private final RequestContext context;
+    private final MessageCodesResolver messageCodesResolver = new WebFlowMessageCodesResolver();
+    @Setter
+    private Validator validator;
     @Setter
     private ExpressionParser expressionParser;
     private boolean userEventProcessed = false;
@@ -78,6 +85,7 @@ public class MockView implements View {
             if (!bindingErrors.isEmpty()) {
                 addErrorMessages(bindingErrors);
             }
+            processValidation(model, transition, results);
         }
     }
 
@@ -130,7 +138,7 @@ public class MockView implements View {
     }
 
     private Object getModelObject() {
-        Expression modelExpression = (Expression) context.getCurrentState().getAttributes().get("model");
+        Expression modelExpression = getModelExpression();
         if (modelExpression != null) {
             try {
                 return modelExpression.getValue(context);
@@ -142,10 +150,41 @@ public class MockView implements View {
         return null;
     }
 
+    private Expression getModelExpression() {
+        return (Expression) context.getCurrentState().getAttributes().get("model");
+    }
+
     private MessageResolver buildErrorMessage(Object offer) {
         MappingResult error = (MappingResult) offer;
         String field = error.getMapping().getTargetExpression().getExpressionString();
         return new MessageBuilder().error().defaultText(error.getCode() + " on " + field).build();
+    }
+
+    private void processValidation(Object model, TransitionDefinition transition, MappingResults results) {
+        if (shouldValidate(model, transition, results)) {
+            validate(model, results);
+        }
+    }
+
+    private boolean shouldValidate(Object model, TransitionDefinition transition, MappingResults results) {
+        Boolean validationAttribute = getValidationAttribute(transition);
+        if (validationAttribute != null) {
+            return validationAttribute.booleanValue();
+        }
+        return true;
+    }
+
+    private Boolean getValidationAttribute(TransitionDefinition transition) {
+        return transition != null
+                ? transition.getAttributes().getBoolean("validate")
+                : null;
+    }
+
+    private void validate(Object model, MappingResults mappingResults) {
+        ValidationHelper helper = new ValidationHelper(model, context, getEventId(), getModelExpression().getExpressionString(),
+                expressionParser, messageCodesResolver, mappingResults);
+        helper.setValidator(validator);
+        helper.validate();
     }
 
     @Override

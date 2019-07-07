@@ -1,11 +1,18 @@
 package de.lhug.webflowtester.builder;
 
+import java.util.Locale;
+import java.util.Map.Entry;
+
+import org.springframework.context.support.StaticApplicationContext;
+import org.springframework.context.support.StaticMessageSource;
 import org.springframework.webflow.config.FlowDefinitionResource;
 import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
 import org.springframework.webflow.engine.Flow;
 import org.springframework.webflow.engine.builder.FlowAssembler;
 import org.springframework.webflow.engine.builder.FlowBuilder;
 
+import de.lhug.webflowtester.builder.MessageContainer.Message;
+import de.lhug.webflowtester.builder.MessageContainer.Messages;
 import de.lhug.webflowtester.builder.configuration.ExternalizedMockFlowConfiguration;
 import de.lhug.webflowtester.builder.configuration.FlowTestContext;
 import de.lhug.webflowtester.builder.context.MockFlowBuilderContext;
@@ -67,6 +74,7 @@ public abstract class ExternalizedMockFlowBuilder implements MockFlowBuilder {
         MockFlowBuilderContext builderContext = new MockFlowBuilderContext(resource.getId());
         registerBeans(builderContext);
         registerStubFlows((FlowDefinitionRegistry) builderContext.getFlowDefinitionLocator());
+        registerMessages(((StaticApplicationContext) builderContext.getApplicationContext()).getStaticMessageSource());
         FlowBuilder builder = createFlowBuilder();
         flow = new FlowAssembler(builder, builderContext).assembleFlow();
     }
@@ -74,7 +82,7 @@ public abstract class ExternalizedMockFlowBuilder implements MockFlowBuilder {
     /**
      * Registers beans in the internal
      * {@link org.springframework.context.ApplicationContext ApplicationContext}.
-     * 
+     * <p>
      * The passed {@link MockFlowBuilderContext} allows for registering other
      * objects as well. It can be used to register {@link Flow} implementations, it
      * is suggested to use {@link #registerStubFlows(FlowDefinitionRegistry)} for
@@ -83,7 +91,11 @@ public abstract class ExternalizedMockFlowBuilder implements MockFlowBuilder {
      * register all beans defined in the passed {@link FlowTestContext} with their
      * respective names in the Flows
      * {@link org.springframework.context.ApplicationContext ApplicationContext}.
-     * 
+     * </p>
+     * <p>
+     * Note that this does not fire any initialization callbacks, all beans
+     * <b>must</b> be fully initialized.
+     * </p>
      * This method is being called once by {@link #buildFlow()}, right before
      * {@link #registerStubFlows(FlowDefinitionRegistry)}.
      * 
@@ -91,6 +103,7 @@ public abstract class ExternalizedMockFlowBuilder implements MockFlowBuilder {
      *                       {@link org.springframework.webflow.engine.builder.FlowBuilderContext
      *                       FlowBuilderContext} used to create the Flows
      *                       {@link org.springframework.context.ApplicationContext}.
+     * @see MockFlowBuilderContext#registerBean(String, Object)
      */
     protected void registerBeans(MockFlowBuilderContext builderContext) {
         if (context != null) {
@@ -101,16 +114,18 @@ public abstract class ExternalizedMockFlowBuilder implements MockFlowBuilder {
 
     /**
      * Registers Sub Flows in the {@link FlowDefinitionRegistry}
-     * 
+     * <p>
      * The passed {@link FlowDefinitionRegistry} allows registering custom flow
      * definitions. By default, this method registers each
      * {@link org.springframework.webflow.definition.registry.FlowDefinitionHolder
      * FlowDefinitionHolder} that has been previously registered in the
      * {@link FlowTestContext}.
+     * </p>
      * <p>
      * Subclasses may override to add other implementations, like {@link Flow}s,
      * directly to the registry. This is being called once by {@link #buildFlow()},
-     * right before {@link #createFlowBuilder()}
+     * right before {@link #registerMessages(StaticMessageSource)}
+     * </p>
      * 
      * @param registry the {@link FlowDefinitionRegistry} present in the
      *                 {@link org.springframework.webflow.engine.builder.FlowBuilderContext
@@ -119,6 +134,40 @@ public abstract class ExternalizedMockFlowBuilder implements MockFlowBuilder {
     protected void registerStubFlows(FlowDefinitionRegistry registry) {
         if (context != null) {
             context.getSubFlows().forEach(registry::registerFlowDefinition);
+        }
+    }
+
+    /**
+     * Registers Messages in the {@link StaticMessageSource}
+     * <p>
+     * The passed {@link StaticMessageSource} allows adding of static messages to
+     * the context to avoid complicated resource loading and properties-handling. By
+     * default, this iterates over all {@link Locale} - {@link Messages} pairs and
+     * registers each {@link Message} in the context.
+     * </p>
+     * <p>
+     * Subclasses may override to add default messages to the flow. To keep the
+     * messages as default, but overridable, call
+     * {@link super#registerMessages(StaticMessageSource)} after adding the
+     * fallbacks, if the messages should be unoverridable, add them after calling
+     * {@code super}
+     * </p>
+     * <p>
+     * This is called once by {@link #buildFlow()}, right before
+     * {@link #createFlowBuilder()}
+     * </p>
+     * 
+     * @param messageSource the StaticMessageSource provided by the
+     *                      {@link StaticApplicationContext}
+     */
+    protected void registerMessages(StaticMessageSource messageSource) {
+        if (context != null) {
+            for (Entry<Locale, Messages> entry : context.getAllMessages().entrySet()) {
+                Locale currentLocale = entry.getKey();
+                for (Message message : entry.getValue().messages) {
+                    messageSource.addMessage(message.getKey(), currentLocale, message.getValue());
+                }
+            }
         }
     }
 

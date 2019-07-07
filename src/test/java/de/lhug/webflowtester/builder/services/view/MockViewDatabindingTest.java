@@ -24,7 +24,7 @@ import de.lhug.webflowtester.builder.configuration.XMLMockFlowConfiguration;
 import de.lhug.webflowtester.executor.MockFlowTester;
 import de.lhug.webflowtester.helper.BeanModel;
 
-public class MockViewTest {
+public class MockViewDatabindingTest {
 
     private MockFlowTester tester;
 

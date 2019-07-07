@@ -2,6 +2,7 @@ package de.lhug.webflowtester.builder.services;
 
 import org.springframework.binding.convert.ConversionService;
 import org.springframework.binding.convert.service.DefaultConversionService;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
@@ -29,7 +30,7 @@ public class TestFlowBuilderServicesFactory {
         }
     }
 
-    private static StaticApplicationContext createTestApplicationContext() {
+    private static ApplicationContext createTestApplicationContext() {
         StaticApplicationContext context = new StaticApplicationContext();
         context.refresh();
         return context;
