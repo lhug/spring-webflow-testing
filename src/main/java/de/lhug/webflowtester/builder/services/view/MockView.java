@@ -161,12 +161,12 @@ public class MockView implements View {
     }
 
     private void processValidation(Object model, TransitionDefinition transition, MappingResults results) {
-        if (shouldValidate(model, transition, results)) {
+        if (shouldValidate(transition)) {
             validate(model, results);
         }
     }
 
-    private boolean shouldValidate(Object model, TransitionDefinition transition, MappingResults results) {
+    private boolean shouldValidate(TransitionDefinition transition) {
         Boolean validationAttribute = getValidationAttribute(transition);
         if (validationAttribute != null) {
             return validationAttribute.booleanValue();

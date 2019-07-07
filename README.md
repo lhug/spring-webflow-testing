@@ -8,6 +8,8 @@ This library is created with `JUnit 4.12` and `spring WebFlow 2.3.3-RELEASE`, ut
 
 ## Overview
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=lhug_spring-webflow-testing&metric=alert_status)](https://sonarcloud.io/dashboard?id=lhug_spring-webflow-testing)
+
 The Tester itself can directly run a Flow and allow assertions on it, as well as exposing several convenience getters.
 It automatically creates a new ExternalContext instance which is passed to the flow on every request, meaning that it is possible to follow the entire flow from start to end without worrying if certain actions are not executed.
 The Tester is being created by passing an instance of `de.lhug.webflowtester.builder.MockFlowBuilder`, a convenience interface exposing a single method returning a Flow instance.
