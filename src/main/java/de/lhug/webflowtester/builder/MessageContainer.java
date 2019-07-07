@@ -59,7 +59,7 @@ public class MessageContainer {
      */
     @RequiredArgsConstructor
     public static class Messages {
-        final Set<Message> messages = new HashSet<>();
+        final Set<Message> messageStore = new HashSet<>();
 
         /**
          * Convenience method to add {@link Message} objects to this {@link Messages}
@@ -78,7 +78,7 @@ public class MessageContainer {
          * @return {@code this}
          */
         public Messages addMessage(String key, String value) {
-            this.messages.add(new Message(key, value));
+            this.messageStore.add(new Message(key, value));
             return this;
         }
     }
@@ -162,6 +162,6 @@ public class MessageContainer {
         Messages localMessages = getMessages(locale);
         values.entrySet().stream()
                 .map(e -> new Message(e.getKey(), e.getValue()))
-                .forEach(localMessages.messages::add);
+                .forEach(localMessages.messageStore::add);
     }
 }

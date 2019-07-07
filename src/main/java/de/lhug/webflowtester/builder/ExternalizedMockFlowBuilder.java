@@ -148,7 +148,7 @@ public abstract class ExternalizedMockFlowBuilder implements MockFlowBuilder {
      * <p>
      * Subclasses may override to add default messages to the flow. To keep the
      * messages as default, but overridable, call
-     * {@link super#registerMessages(StaticMessageSource)} after adding the
+     * {@code super.registerMessages(StaticMessageSource)} after adding the
      * fallbacks, if the messages should be unoverridable, add them after calling
      * {@code super}
      * </p>
@@ -164,7 +164,7 @@ public abstract class ExternalizedMockFlowBuilder implements MockFlowBuilder {
         if (context != null) {
             for (Entry<Locale, Messages> entry : context.getAllMessages().entrySet()) {
                 Locale currentLocale = entry.getKey();
-                for (Message message : entry.getValue().messages) {
+                for (Message message : entry.getValue().messageStore) {
                     messageSource.addMessage(message.getKey(), currentLocale, message.getValue());
                 }
             }

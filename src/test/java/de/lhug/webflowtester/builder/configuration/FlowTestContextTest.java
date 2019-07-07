@@ -165,7 +165,7 @@ public class FlowTestContextTest {
 
     @SuppressWarnings("unchecked")
     private Set<Message> extractMessages(Messages offer) throws Exception {
-        Field field = Messages.class.getDeclaredField("messages");
+        Field field = Messages.class.getDeclaredField("messageStore");
         field.setAccessible(true);
         return (Set<Message>) field.get(offer);
 

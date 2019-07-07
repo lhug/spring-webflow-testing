@@ -40,7 +40,7 @@ public class MessageContainerTest {
     public void shouldReturnEmptyMessagesObjectWhenNoMessagesForLocaleHaveBeenAdded() throws Exception {
         Messages result = sut.getMessages(Locale.TAIWAN);
 
-        assertThat(result.messages, is(empty()));
+        assertThat(result.messageStore, is(empty()));
     }
 
     @Test
@@ -51,7 +51,7 @@ public class MessageContainerTest {
 
         Map<Locale, Messages> allMessages = sut.getAllMessages();
         assertThat(allMessages.size(), is(1));
-        assertThat(allMessages.get(Locale.PRC).messages, contains(new Message("key", "value")));
+        assertThat(allMessages.get(Locale.PRC).messageStore, contains(new Message("key", "value")));
     }
 
     @Test
@@ -60,7 +60,7 @@ public class MessageContainerTest {
 
         messages.addMessage("left", "right");
 
-        assertThat(messages.messages, contains(new Message("left", "right")));
+        assertThat(messages.messageStore, contains(new Message("left", "right")));
     }
 
     @Test
@@ -71,7 +71,7 @@ public class MessageContainerTest {
                 .addMessage("one", "two")
                 .addMessage("three", "four");
 
-        assertThat(messages.messages, containsInAnyOrder(
+        assertThat(messages.messageStore, containsInAnyOrder(
                 new Message("one", "two"),
                 new Message("three", "four")));
     }
@@ -84,7 +84,7 @@ public class MessageContainerTest {
 
         sut.addMessages(Locale.CANADA_FRENCH, messages);
 
-        assertThat(sut.getMessages(Locale.CANADA_FRENCH).messages, containsInAnyOrder(
+        assertThat(sut.getMessages(Locale.CANADA_FRENCH).messageStore, containsInAnyOrder(
                 new Message("a", "b"),
                 new Message("c", "d")));
     }
