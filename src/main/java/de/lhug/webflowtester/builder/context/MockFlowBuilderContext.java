@@ -28,49 +28,51 @@ import de.lhug.webflowtester.builder.services.TestFlowBuilderServicesFactory;
  */
 public class MockFlowBuilderContext extends FlowBuilderContextImpl {
 
-    /**
-     * Creates a new mock flow service locator for a {@link Flow} with the given id
-     * and no attributes.
-     * 
-     * @param flowId the String denoting the id of the flow to build
-     */
-    public MockFlowBuilderContext(String flowId) {
-        this(flowId, CollectionUtils.EMPTY_ATTRIBUTE_MAP);
-    }
+	/**
+	 * Creates a new mock flow service locator for a {@link Flow} with the given id
+	 * and no attributes.
+	 * 
+	 * @param flowId the String denoting the id of the flow to build
+	 */
+	public MockFlowBuilderContext(String flowId) {
+		this(flowId, CollectionUtils.EMPTY_ATTRIBUTE_MAP);
+	}
 
-    /**
-     * Creates a new mock flow service locator for a {@link Flow} with the given id
-     * and attributes
-     * 
-     * @param flowId     the String denoting the id of the flow to build
-     * @param attributes the AttributeMap containing flow attributes
-     */
-    public MockFlowBuilderContext(String flowId, AttributeMap attributes) {
-        super(flowId, attributes, new FlowDefinitionRegistryImpl(), TestFlowBuilderServicesFactory.getServices());
-    }
+	/**
+	 * Creates a new mock flow service locator for a {@link Flow} with the given id
+	 * and attributes
+	 * 
+	 * @param flowId     the String denoting the id of the flow to build
+	 * @param attributes the AttributeMap containing flow attributes
+	 */
+	public MockFlowBuilderContext(String flowId, AttributeMap<Object> attributes) {
+		super(flowId, attributes, new FlowDefinitionRegistryImpl(),
+				TestFlowBuilderServicesFactory.getServices());
+	}
 
-    /**
-     * Register a subflow definition in the backing flow registry, typically to
-     * support a flow execution test. For test scenarios, the subflow is often a
-     * stub used to verify parent flow input and output mapping behavior.
-     * 
-     * @param subflow the subflow
-     */
-    public void registerSubflow(Flow subflow) {
-        ((FlowDefinitionRegistryImpl) getFlowDefinitionLocator()).registerFlowDefinition(subflow);
-    }
+	/**
+	 * Register a subflow definition in the backing flow registry, typically to
+	 * support a flow execution test. For test scenarios, the subflow is often a
+	 * stub used to verify parent flow input and output mapping behavior.
+	 * 
+	 * @param subflow the subflow
+	 */
+	public void registerSubflow(Flow subflow) {
+		((FlowDefinitionRegistryImpl) getFlowDefinitionLocator()).registerFlowDefinition(subflow);
+	}
 
-    /**
-     * Register a bean in the backing bean factory, typically to support a flow
-     * execution test. For test scenarios, if the bean is a service invoked by a
-     * bean invoking action it is often a stub or dynamic mock implementation of the
-     * service's business interface.
-     * 
-     * @param beanName the bean name
-     * @param bean     the singleton instance
-     */
-    public void registerBean(String beanName, Object bean) {
-        ((ConfigurableApplicationContext) getApplicationContext()).getBeanFactory().registerSingleton(beanName, bean);
-    }
+	/**
+	 * Register a bean in the backing bean factory, typically to support a flow
+	 * execution test. For test scenarios, if the bean is a service invoked by a
+	 * bean invoking action it is often a stub or dynamic mock implementation of the
+	 * service's business interface.
+	 * 
+	 * @param beanName the bean name
+	 * @param bean     the singleton instance
+	 */
+	public void registerBean(String beanName, Object bean) {
+		((ConfigurableApplicationContext) getApplicationContext()).getBeanFactory()
+				.registerSingleton(beanName, bean);
+	}
 
 }

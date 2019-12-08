@@ -7,3 +7,4 @@ bin
 build
 gradle
 gradlew.bat
+publishing.gradle
