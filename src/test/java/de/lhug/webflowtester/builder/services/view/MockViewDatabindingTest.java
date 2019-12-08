@@ -26,112 +26,113 @@ import de.lhug.webflowtester.helper.BeanModel;
 
 public class MockViewDatabindingTest {
 
-    private MockFlowTester tester;
+	private MockFlowTester tester;
 
-    @Before
-    public void setUp() {
-        tester = MockFlowTester
-                .from(new XMLMockFlowBuilder(new XMLMockFlowConfiguration("/eventFlows/modelExpressionFlow.xml")));
-    }
+	@Before
+	public void setUp() {
+		tester = MockFlowTester
+				.from(new XMLMockFlowBuilder(
+						new XMLMockFlowConfiguration("/eventFlows/modelExpressionFlow.xml")));
+	}
 
-    @Test
-    public void shouldBindEmptyBeanModelAsModelAttributeOfView() throws Exception {
-        tester.startFlow();
+	@Test
+	public void shouldBindEmptyBeanModelAsModelAttributeOfView() throws Exception {
+		tester.startFlow();
 
-        tester.assertCurrentStateIs("start");
-        Object currentModel = getCurrentModelObject();
-        assertThat(currentModel, is(new BeanModel()));
-    }
+		tester.assertCurrentStateIs("start");
+		Object currentModel = getCurrentModelObject();
+		assertThat(currentModel, is(new BeanModel()));
+	}
 
-    private Object getCurrentModelObject() {
-        StateDefinition currentState = tester.getCurrentFlowExecution().getActiveSession().getState();
-        Expression modelExpression = (Expression) currentState.getAttributes().get("model");
-        return modelExpression.getValue(tester.getScope());
-    }
+	private Object getCurrentModelObject() {
+		StateDefinition currentState = tester.getCurrentFlowExecution().getActiveSession().getState();
+		Expression modelExpression = (Expression) currentState.getAttributes().get("model");
+		return modelExpression.getValue(tester.getScope());
+	}
 
-    @Test
-    public void shouldNotBindValuesWhenNoParametersAreConfigured() throws Exception {
-        tester.startFlowAt("start");
-        tester.setEventId("continue");
-        BeanModel model = createBeanModel();
-        addToFlowScope("beanModel", model);
+	@Test
+	public void shouldNotBindValuesWhenNoParametersAreConfigured() throws Exception {
+		tester.startFlowAt("start");
+		tester.setEventId("continue");
+		BeanModel model = createBeanModel();
+		addToFlowScope("beanModel", model);
 
-        tester.resumeFlow();
+		tester.resumeFlow();
 
-        assertThat(model.getAmount(), is(2));
-        assertThat(model.getName(), is("nope"));
-        assertThat(model.getEntries(), is(empty()));
-    }
+		assertThat(model.getAmount(), is(2));
+		assertThat(model.getName(), is("nope"));
+		assertThat(model.getEntries(), is(empty()));
+	}
 
-    private BeanModel createBeanModel() {
-        BeanModel model = new BeanModel();
-        model.setAmount(2);
-        model.setName("nope");
-        model.setEntries(Collections.emptyList());
-        return model;
-    }
+	private BeanModel createBeanModel() {
+		BeanModel model = new BeanModel();
+		model.setAmount(2);
+		model.setName("nope");
+		model.setEntries(Collections.emptyList());
+		return model;
+	}
 
-    private void addToFlowScope(String key, Object value) {
-        MutableAttributeMap flowScope = (MutableAttributeMap) tester.getScope();
-        flowScope.put(key, value);
-    }
+	private void addToFlowScope(String key, Object value) {
+		MutableAttributeMap<Object> flowScope = (MutableAttributeMap<Object>) tester.getScope();
+		flowScope.put(key, value);
+	}
 
-    @Test
-    public void shouldBindAttributesFromRequestParametersToModelObject() throws Exception {
-        tester.startFlowAt("start");
-        tester.setEventId("continue");
-        BeanModel model = createBeanModel();
-        addToFlowScope("beanModel", model);
+	@Test
+	public void shouldBindAttributesFromRequestParametersToModelObject() throws Exception {
+		tester.startFlowAt("start");
+		tester.setEventId("continue");
+		BeanModel model = createBeanModel();
+		addToFlowScope("beanModel", model);
 
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("name", "Bean Model");
-        parameters.put("amount", "99");
-        parameters.put("entries", new String[] { "one", "two", "four" });
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("name", "Bean Model");
+		parameters.put("amount", "99");
+		parameters.put("entries", new String[] { "one", "two", "four" });
 
-        tester.resumeFlow(parameters);
+		tester.resumeFlow(parameters);
 
-        assertThat(model.getAmount(), is(99));
-        assertThat(model.getName(), is("Bean Model"));
-        assertThat(model.getEntries(), contains("one", "two", "four"));
-    }
+		assertThat(model.getAmount(), is(99));
+		assertThat(model.getName(), is("Bean Model"));
+		assertThat(model.getEntries(), contains("one", "two", "four"));
+	}
 
-    @Test
-    public void shouldAddErrorMessageToMessageContextOnBindingError() throws Exception {
-        tester.startFlowAt("start");
-        tester.setEventId("continue");
-        BeanModel model = createBeanModel();
-        addToFlowScope("beanModel", model);
+	@Test
+	public void shouldAddErrorMessageToMessageContextOnBindingError() throws Exception {
+		tester.startFlowAt("start");
+		tester.setEventId("continue");
+		BeanModel model = createBeanModel();
+		addToFlowScope("beanModel", model);
 
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("name", "Bean Model");
-        parameters.put("amount", "ninetynine");
-        parameters.put("entries", new String[] { "one", "two", "four" });
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("name", "Bean Model");
+		parameters.put("amount", "ninetynine");
+		parameters.put("entries", new String[] { "one", "two", "four" });
 
-        tester.resumeFlow(parameters);
+		tester.resumeFlow(parameters);
 
-        assertThat(model.getName(), is("Bean Model"));
-        assertThat(model.getEntries(), contains("one", "two", "four"));
-        assertThat(model.getAmount(), is(2));
+		assertThat(model.getName(), is("Bean Model"));
+		assertThat(model.getEntries(), contains("one", "two", "four"));
+		assertThat(model.getAmount(), is(2));
 
-        Set<Message> messages = tester.getAllMessages();
-        assertThat(messages, hasSize(1));
-        assertThat(messages, contains(hasProperty("text", is("typeMismatch on amount"))));
-    }
+		Set<Message> messages = tester.getAllMessages();
+		assertThat(messages, hasSize(1));
+		assertThat(messages, contains(hasProperty("text", is("typeMismatch on amount"))));
+	}
 
-    @Test
-    public void shouldNotLeaveStateOnBindingErrors() throws Exception {
-        tester.startFlowAt("start");
-        tester.setEventId("continue");
-        BeanModel model = createBeanModel();
-        addToFlowScope("beanModel", model);
+	@Test
+	public void shouldNotLeaveStateOnBindingErrors() throws Exception {
+		tester.startFlowAt("start");
+		tester.setEventId("continue");
+		BeanModel model = createBeanModel();
+		addToFlowScope("beanModel", model);
 
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("name", "Bean Model");
-        parameters.put("amount", "ninetynine");
-        parameters.put("entries", new String[] { "one", "two", "four" });
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("name", "Bean Model");
+		parameters.put("amount", "ninetynine");
+		parameters.put("entries", new String[] { "one", "two", "four" });
 
-        tester.resumeFlow(parameters);
+		tester.resumeFlow(parameters);
 
-        tester.assertCurrentStateIs("start");
-    }
+		tester.assertCurrentStateIs("start");
+	}
 }

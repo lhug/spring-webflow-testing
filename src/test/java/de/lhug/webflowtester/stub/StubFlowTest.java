@@ -1,11 +1,6 @@
 package de.lhug.webflowtester.stub;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 
@@ -22,145 +17,148 @@ import org.springframework.webflow.execution.FlowExecutionOutcome;
 
 public class StubFlowTest {
 
-    private StubFlow sut;
+	private StubFlow sut;
 
-    @Before
-    public void setUp() {
-        sut = new StubFlow("flowId", "endStateId");
-    }
+	@Before
+	public void setUp() {
+		sut = new StubFlow("flowId", "endStateId");
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionWhenFlowIdIsNull() throws Exception {
-        new StubFlow(null, "state");
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldThrowExceptionWhenFlowIdIsNull() throws Exception {
+		new StubFlow(null, "state");
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionWhenEndStateIdIsNull() throws Exception {
-        new StubFlow("state", null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldThrowExceptionWhenEndStateIdIsNull() throws Exception {
+		new StubFlow("state", null);
+	}
 
-    @Test
-    public void shouldCreateStubFlowWithFlowIdAndEndStateId() throws Exception {
-        StubFlow result = new StubFlow("flowId", "endStateId");
+	@Test
+	public void shouldCreateStubFlowWithFlowIdAndEndStateId() throws Exception {
+		StubFlow result = new StubFlow("flowId", "endStateId");
 
-        assertThat(result.getFlowDefinitionId(), is("flowId"));
-        assertThat(result.getEndStateId(), is("endStateId"));
-    }
+		assertThat(result.getFlowDefinitionId()).isEqualTo("flowId");
+		assertThat(result.getEndStateId()).isEqualTo("endStateId");
+	}
 
-    @Test
-    public void shouldReturnExecutableFlow() throws Exception {
-        FlowDefinition result = sut.getFlowDefinition();
+	@Test
+	public void shouldReturnExecutableFlow() throws Exception {
+		FlowDefinition result = sut.getFlowDefinition();
 
-        runAndAssertEnd(result, null);
-    }
+		runAndAssertEnd(result, null);
+	}
 
-    private FlowExecutionOutcome runAndAssertEnd(FlowDefinition definition, MutableAttributeMap input) {
-        FlowExecution exec = new FlowExecutionImpl((Flow) definition);
-        exec.start(input, null);
+	private <V> FlowExecutionOutcome runAndAssertEnd(FlowDefinition definition,
+			MutableAttributeMap<V> input) {
+		FlowExecution exec = new FlowExecutionImpl((Flow) definition);
+		exec.start(input, null);
 
-        assertThat(exec.hasEnded(), is(true));
-        return exec.getOutcome();
-    }
+		assertThat(exec.hasEnded()).isTrue();
+		return exec.getOutcome();
+	}
 
-    @Test
-    public void flowShouldEmitEndStateId() throws Exception {
-        FlowDefinition result = sut.getFlowDefinition();
+	@Test
+	public void flowShouldEmitEndStateId() throws Exception {
+		FlowDefinition result = sut.getFlowDefinition();
 
-        FlowExecutionOutcome outcome = runAndAssertEnd(result, null);
+		FlowExecutionOutcome outcome = runAndAssertEnd(result, null);
 
-        assertThat(outcome.getId(), is("endStateId"));
-    }
+		assertThat(outcome.getId()).isEqualTo("endStateId");
+	}
 
-    @Test
-    public void shouldCacheFlowDefinition() throws Exception {
-        assertThat(sut.getFlowDefinition(),
-                is(sameInstance(sut.getFlowDefinition())));
-    }
+	@Test
+	public void shouldCacheFlowDefinition() throws Exception {
+		FlowDefinition result = sut.getFlowDefinition();
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowExceptionWhenTryingToSetNullAsEndStateId() throws Exception {
-        sut.setEndStateId(null);
-    }
+		assertThat(result).isSameAs(sut.getFlowDefinition());
+	}
 
-    @Test
-    public void shouldEmitUpdatedFlowDefinitionWhenEndStateIdChanges() throws Exception {
-        FlowDefinition before = sut.getFlowDefinition();
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldThrowExceptionWhenTryingToSetNullAsEndStateId() throws Exception {
+		sut.setEndStateId(null);
+	}
 
-        sut.setEndStateId("otherEndState");
-        FlowDefinition after = sut.getFlowDefinition();
+	@Test
+	public void shouldEmitUpdatedFlowDefinitionWhenEndStateIdChanges() throws Exception {
+		FlowDefinition before = sut.getFlowDefinition();
 
-        assertThat(before, is(not(sameInstance(after))));
-        assertThat(before.getId(), is(after.getId()));
+		sut.setEndStateId("otherEndState");
+		FlowDefinition after = sut.getFlowDefinition();
 
-        assertThat(before.getPossibleOutcomes(), is(arrayContaining("endStateId")));
-        assertThat(after.getPossibleOutcomes(), is(arrayContaining("otherEndState")));
-    }
+		assertThat(before).isNotSameAs(after);
+		assertThat(before.getId()).isEqualTo(after.getId());
 
-    @Test
-    public void shouldReturnEmptyMapBeforeFlowWasExecuted() throws Exception {
-        AttributeMap result = sut.getInputAttributes();
+		assertThat(before.getPossibleOutcomes()).containsExactly("endStateId");
+		assertThat(after.getPossibleOutcomes()).containsExactly("otherEndState");
+	}
 
-        assertThat(result.isEmpty(), is(true));
-    }
+	@Test
+	public void shouldReturnEmptyMapBeforeFlowWasExecuted() throws Exception {
+		AttributeMap<Object> result = sut.getInputAttributes();
 
-    @Test
-    public void shouldReturnPassedInputAttributesWhenFlowWasExecutedWithInputAttributes() throws Exception {
-        LocalAttributeMap input = new LocalAttributeMap("key", "input");
+		assertThat(result.asMap()).isEmpty();
+	}
 
-        runAndAssertEnd(sut.getFlowDefinition(), input);
+	@Test
+	public void shouldReturnPassedInputAttributesWhenFlowWasExecutedWithInputAttributes()
+			throws Exception {
+		LocalAttributeMap<String> input = new LocalAttributeMap<>("key", "input");
 
-        AttributeMap result = sut.getInputAttributes();
-        assertThat(result, equalTo(input));
-    }
+		runAndAssertEnd(sut.getFlowDefinition(), input);
 
-    @Test
-    public void shouldResetInputAttributesAfterFetching() throws Exception {
-        LocalAttributeMap input = new LocalAttributeMap("key", "input");
-        runAndAssertEnd(sut.getFlowDefinition(), input);
-        sut.getInputAttributes();
+		AttributeMap<Object> result = sut.getInputAttributes();
+		assertThat(result).isEqualTo(input);
+	}
 
-        AttributeMap result = sut.getInputAttributes();
+	@Test
+	public void shouldResetInputAttributesAfterFetching() throws Exception {
+		LocalAttributeMap<String> input = new LocalAttributeMap<>("key", "input");
+		runAndAssertEnd(sut.getFlowDefinition(), input);
+		sut.getInputAttributes();
 
-        assertThat(result.isEmpty(), is(true));
-    }
+		AttributeMap<Object> result = sut.getInputAttributes();
 
-    @Test
-    public void shouldEmitOutputAttributes() throws Exception {
-        sut.addOutputAttribute("out", "put");
+		assertThat(result.asMap()).isEmpty();
+	}
 
-        FlowExecutionOutcome result = runAndAssertEnd(sut.getFlowDefinition(), null);
+	@Test
+	public void shouldEmitOutputAttributes() throws Exception {
+		sut.addOutputAttribute("out", "put");
 
-        assertThat(result.getOutput().get("out"), is("put"));
-    }
+		FlowExecutionOutcome result = runAndAssertEnd(sut.getFlowDefinition(), null);
 
-    @Test
-    public void shouldEmitMultipleOutputAttributes() throws Exception {
-        sut.addOutputAttribute("key", "value");
-        byte[] other = new byte[] { 1, 1, 2, 3, 5, 8 };
-        sut.addOutputAttribute("other", other);
+		assertThat(result.getOutput().get("out")).isEqualTo("put");
+	}
 
-        AttributeMap result = runAndAssertEnd(sut.getFlowDefinition(), null).getOutput();
+	@Test
+	public void shouldEmitMultipleOutputAttributes() throws Exception {
+		sut.addOutputAttribute("key", "value");
+		byte[] other = new byte[] { 1, 1, 2, 3, 5, 8 };
+		sut.addOutputAttribute("other", other);
 
-        assertThat(result.get("key"), is("value"));
-        assertThat(result.get("other"), is(other));
-    }
+		AttributeMap<Object> result = runAndAssertEnd(sut.getFlowDefinition(), null).getOutput();
 
-    @Test
-    public void shouldEmitPassedOutputMap() throws Exception {
-        sut.setOutputAttributes(Collections.singletonMap("left", "right"));
+		assertThat(result.get("key")).isEqualTo("value");
+		assertThat(result.get("other")).isEqualTo(other);
+	}
 
-        AttributeMap result = runAndAssertEnd(sut.getFlowDefinition(), null).getOutput();
+	@Test
+	public void shouldEmitPassedOutputMap() throws Exception {
+		sut.setOutputAttributes(Collections.singletonMap("left", "right"));
 
-        assertThat(result.get("left"), is("right"));
-    }
+		AttributeMap<Object> result = runAndAssertEnd(sut.getFlowDefinition(), null).getOutput();
 
-    @Test
-    public void shouldUpdateOutputAttributesAfterAssembly() throws Exception {
-        FlowDefinition definition = sut.getFlowDefinition();
+		assertThat(result.get("left")).isEqualTo("right");
+	}
 
-        sut.addOutputAttribute("some", "value");
+	@Test
+	public void shouldUpdateOutputAttributesAfterAssembly() throws Exception {
+		FlowDefinition definition = sut.getFlowDefinition();
 
-        FlowExecutionOutcome result = runAndAssertEnd(definition, null);
-        assertThat(result.getOutput().get("some"), is("value"));
-    }
+		sut.addOutputAttribute("some", "value");
+
+		FlowExecutionOutcome result = runAndAssertEnd(definition, null);
+		assertThat(result.getOutput().get("some")).isEqualTo("value");
+	}
 }

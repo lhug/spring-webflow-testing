@@ -9,6 +9,7 @@ import org.springframework.webflow.engine.builder.ViewFactoryCreator;
 import org.springframework.webflow.execution.RequestContext;
 import org.springframework.webflow.execution.View;
 import org.springframework.webflow.execution.ViewFactory;
+import org.springframework.webflow.validation.ValidationHintResolver;
 
 import de.lhug.webflowtester.builder.services.view.MockView;
 import lombok.RequiredArgsConstructor;
@@ -21,33 +22,38 @@ import lombok.RequiredArgsConstructor;
  */
 class MockViewFactoryCreator implements ViewFactoryCreator {
 
-    @Override
-    public ViewFactory createViewFactory(Expression viewId, ExpressionParser expressionParser,
-            ConversionService conversionService, BinderConfiguration binderConfiguration, Validator validator) {
-        return new MockViewFactory(viewId, expressionParser);
-    }
+	@Override
+	public ViewFactory createViewFactory(
+			Expression viewId,
+			ExpressionParser expressionParser,
+			ConversionService conversionService,
+			BinderConfiguration binderConfiguration,
+			Validator validator,
+			ValidationHintResolver validationHintResolver) {
+		return new MockViewFactory(viewId, expressionParser);
+	}
 
-    @Override
-    public String getViewIdByConvention(String viewStateId) {
-        return viewStateId;
-    }
+	@Override
+	public String getViewIdByConvention(String viewStateId) {
+		return viewStateId;
+	}
 
-    /**
-     * Returns a Mock View implementation that simply holds the evaluated view
-     * identifier.
-     *
-     */
-    @RequiredArgsConstructor
-    static class MockViewFactory implements ViewFactory {
-        private final Expression viewIdExpression;
-        private final ExpressionParser expressionParser;
+	/**
+	 * Returns a Mock View implementation that simply holds the evaluated view
+	 * identifier.
+	 *
+	 */
+	@RequiredArgsConstructor
+	static class MockViewFactory implements ViewFactory {
+		private final Expression viewIdExpression;
+		private final ExpressionParser expressionParser;
 
-        @Override
-        public View getView(RequestContext context) {
-            String viewId = (String) this.viewIdExpression.getValue(context);
-            MockView view = new MockView(viewId, context);
-            view.setExpressionParser(expressionParser);
-            return view;
-        }
-    }
+		@Override
+		public View getView(RequestContext context) {
+			String viewId = (String) this.viewIdExpression.getValue(context);
+			MockView view = new MockView(viewId, context);
+			view.setExpressionParser(expressionParser);
+			return view;
+		}
+	}
 }

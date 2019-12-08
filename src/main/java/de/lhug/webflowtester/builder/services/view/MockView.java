@@ -44,204 +44,205 @@ import lombok.extern.java.Log;
 @Log
 public class MockView implements View {
 
-    @Getter
-    private final String viewId;
-    private final RequestContext context;
-    private final MessageCodesResolver messageCodesResolver = new WebFlowMessageCodesResolver();
-    @Setter
-    private Validator validator;
-    @Setter
-    private ExpressionParser expressionParser;
-    private boolean userEventProcessed = false;
+	@Getter
+	private final String viewId;
+	private final RequestContext context;
+	private final MessageCodesResolver messageCodesResolver = new WebFlowMessageCodesResolver();
+	@Setter
+	private Validator validator;
+	@Setter
+	private ExpressionParser expressionParser;
+	private boolean userEventProcessed = false;
 
-    @Override
-    public void render() throws IOException {
-        context.getExternalContext().getResponseWriter().write(viewId);
-    }
+	@Override
+	public void render() throws IOException {
+		context.getExternalContext().getResponseWriter().write(viewId);
+	}
 
-    @Override
-    public boolean userEventQueued() {
-        return context.getRequestParameters().contains("_eventId");
-    }
+	@Override
+	public boolean userEventQueued() {
+		return context.getRequestParameters().contains("_eventId");
+	}
 
-    @Override
-    public void processUserEvent() {
-        String eventId = getEventId();
-        if (eventId == null) {
-            return;
-        }
-        Object model = getModelObject();
-        if (model != null) {
-            TransitionDefinition transition = context.getMatchingTransition(eventId);
-            processBinding(model, transition);
-        }
-        userEventProcessed = true;
-    }
+	@Override
+	public void processUserEvent() {
+		String eventId = getEventId();
+		if (eventId == null) {
+			return;
+		}
+		Object model = getModelObject();
+		if (model != null) {
+			TransitionDefinition transition = context.getMatchingTransition(eventId);
+			processBinding(model, transition);
+		}
+		userEventProcessed = true;
+	}
 
-    private void processBinding(Object model, TransitionDefinition transition) {
-        if (shouldBind(transition)) {
-            MappingResults results = bind(model);
-            List<?> bindingErrors = extractBindingErrors(results);
-            if (!bindingErrors.isEmpty()) {
-                addErrorMessages(bindingErrors);
-            }
-            processValidation(model, transition, results);
-        }
-    }
+	private void processBinding(Object model, TransitionDefinition transition) {
+		if (shouldBind(transition)) {
+			MappingResults results = bind(model);
+			List<?> bindingErrors = extractBindingErrors(results);
+			if (!bindingErrors.isEmpty()) {
+				addErrorMessages(bindingErrors);
+			}
+			processValidation(model, transition, results);
+		}
+	}
 
-    private boolean shouldBind(TransitionDefinition transition) {
-        return transition == null || transition.getAttributes().getBoolean("bind", Boolean.TRUE);
-    }
+	private boolean shouldBind(TransitionDefinition transition) {
+		return transition == null || transition.getAttributes().getBoolean("bind", Boolean.TRUE);
+	}
 
-    private MappingResults bind(Object model) {
-        ParameterMap requestParameters = context.getRequestParameters();
-        DefaultMapper mapper = createDefaultMapper(model.getClass(), requestParameters);
-        return mapper.map(requestParameters, model);
-    }
+	private MappingResults bind(Object model) {
+		ParameterMap requestParameters = context.getRequestParameters();
+		DefaultMapper mapper = createDefaultMapper(model.getClass(), requestParameters);
+		return mapper.map(requestParameters, model);
+	}
 
-    private List<?> extractBindingErrors(MappingResults results) {
-        return results.getResults(this::isBindingError);
-    }
+	private List<?> extractBindingErrors(MappingResults results) {
+		return results.getResults(this::isBindingError);
+	}
 
-    private boolean isBindingError(MappingResult result) {
-        return result.isError() && !Objects.equals("propertyNotFound", result.getCode());
-    }
+	private boolean isBindingError(MappingResult result) {
+		return result.isError() && !Objects.equals("propertyNotFound", result.getCode());
+	}
 
-    private void addErrorMessages(List<?> mappingErrors) {
-        MessageContext messageContext = context.getMessageContext();
-        mappingErrors.stream()
-                .map(this::buildErrorMessage)
-                .forEach(messageContext::addMessage);
-    }
+	private void addErrorMessages(List<?> mappingErrors) {
+		MessageContext messageContext = context.getMessageContext();
+		mappingErrors.stream()
+				.map(this::buildErrorMessage)
+				.forEach(messageContext::addMessage);
+	}
 
-    private DefaultMapper createDefaultMapper(Class<?> modelClass, ParameterMap requestParameters) {
-        @SuppressWarnings("unchecked") // ParameterMap has String Keys
-        Set<String> parameterNames = requestParameters.asMap().keySet();
-        DefaultMapper mapper = new DefaultMapper();
+	private DefaultMapper createDefaultMapper(Class<?> modelClass, ParameterMap requestParameters) {
+		Set<String> parameterNames = requestParameters.asMap().keySet();
+		DefaultMapper mapper = new DefaultMapper();
 
-        for (String parameterName : parameterNames) {
-            DefaultMapping mapping = createMapping(modelClass, parameterName);
-            mapper.addMapping(mapping);
-        }
+		for (String parameterName : parameterNames) {
+			DefaultMapping mapping = createMapping(modelClass, parameterName);
+			mapper.addMapping(mapping);
+		}
 
-        return mapper;
-    }
+		return mapper;
+	}
 
-    private DefaultMapping createMapping(Class<?> modelClass, String parameterName) {
-        FluentParserContext parserContext = new FluentParserContext().evaluate(modelClass);
-        Expression targetExpression = expressionParser.parseExpression(parameterName, parserContext);
-        return new DefaultMapping(new RequestParameterExpression(parameterName), targetExpression);
-    }
+	private DefaultMapping createMapping(Class<?> modelClass, String parameterName) {
+		FluentParserContext parserContext = new FluentParserContext().evaluate(modelClass);
+		Expression targetExpression = expressionParser.parseExpression(parameterName, parserContext);
+		return new DefaultMapping(new RequestParameterExpression(parameterName), targetExpression);
+	}
 
-    private String getEventId() {
-        return context.getRequestParameters().get("_eventId");
-    }
+	private String getEventId() {
+		return context.getRequestParameters().get("_eventId");
+	}
 
-    private Object getModelObject() {
-        Expression modelExpression = getModelExpression();
-        if (modelExpression != null) {
-            try {
-                return modelExpression.getValue(context);
-            } catch (EvaluationException e) {
-                log.warning("Expression " + modelExpression.getExpressionString()
-                        + " could not be evaluated. Is the requested Object accessible from the view?");
-            }
-        }
-        return null;
-    }
+	private Object getModelObject() {
+		Expression modelExpression = getModelExpression();
+		if (modelExpression != null) {
+			try {
+				return modelExpression.getValue(context);
+			} catch (EvaluationException e) {
+				log.warning("Expression " + modelExpression.getExpressionString()
+						+ " could not be evaluated. Is the requested Object accessible from the view?");
+			}
+		}
+		return null;
+	}
 
-    private Expression getModelExpression() {
-        return (Expression) context.getCurrentState().getAttributes().get("model");
-    }
+	private Expression getModelExpression() {
+		return (Expression) context.getCurrentState().getAttributes().get("model");
+	}
 
-    private MessageResolver buildErrorMessage(Object offer) {
-        MappingResult error = (MappingResult) offer;
-        String field = error.getMapping().getTargetExpression().getExpressionString();
-        return new MessageBuilder().error().defaultText(error.getCode() + " on " + field).build();
-    }
+	private MessageResolver buildErrorMessage(Object offer) {
+		MappingResult error = (MappingResult) offer;
+		String field = error.getMapping().getTargetExpression().getExpressionString();
+		return new MessageBuilder().error().defaultText(error.getCode() + " on " + field).build();
+	}
 
-    private void processValidation(Object model, TransitionDefinition transition, MappingResults results) {
-        if (shouldValidate(transition)) {
-            validate(model, results);
-        }
-    }
+	private void processValidation(Object model, TransitionDefinition transition,
+			MappingResults results) {
+		if (shouldValidate(transition)) {
+			validate(model, results);
+		}
+	}
 
-    private boolean shouldValidate(TransitionDefinition transition) {
-        Boolean validationAttribute = getValidationAttribute(transition);
-        if (validationAttribute != null) {
-            return validationAttribute.booleanValue();
-        }
-        return true;
-    }
+	private boolean shouldValidate(TransitionDefinition transition) {
+		Boolean validationAttribute = getValidationAttribute(transition);
+		if (validationAttribute != null) {
+			return validationAttribute.booleanValue();
+		}
+		return true;
+	}
 
-    private Boolean getValidationAttribute(TransitionDefinition transition) {
-        return transition != null
-                ? transition.getAttributes().getBoolean("validate")
-                : null;
-    }
+	private Boolean getValidationAttribute(TransitionDefinition transition) {
+		return transition != null
+				? transition.getAttributes().getBoolean("validate")
+				: null;
+	}
 
-    private void validate(Object model, MappingResults mappingResults) {
-        ValidationHelper helper = new ValidationHelper(model, context, getEventId(), getModelExpression().getExpressionString(),
-                expressionParser, messageCodesResolver, mappingResults);
-        helper.setValidator(validator);
-        helper.validate();
-    }
+	private void validate(Object model, MappingResults mappingResults) {
+		ValidationHelper helper = new ValidationHelper(model, context, getEventId(),
+				getModelExpression().getExpressionString(),
+				expressionParser, messageCodesResolver, mappingResults);
+		helper.setValidator(validator);
+		helper.validate();
+	}
 
-    @Override
-    public Serializable getUserEventState() {
-        return null;
-    }
+	@Override
+	public Serializable getUserEventState() {
+		return null;
+	}
 
-    @Override
-    public boolean hasFlowEvent() {
-        return userEventProcessed && !context.getMessageContext().hasErrorMessages();
-    }
+	@Override
+	public boolean hasFlowEvent() {
+		return userEventProcessed && !context.getMessageContext().hasErrorMessages();
+	}
 
-    @Override
-    public Event getFlowEvent() {
-        return new Event(this, getEventId());
-    }
+	@Override
+	public Event getFlowEvent() {
+		return new Event(this, getEventId());
+	}
 
-    @Override
-    public void saveState() {
-        // intentionally left blank
-    }
+	@Override
+	public void saveState() {
+		// intentionally left blank
+	}
 
-    @Override
-    public String toString() {
-        return new ToStringCreator(this).append("viewId", viewId).toString();
-    }
+	@Override
+	public String toString() {
+		return new ToStringCreator(this).append("viewId", viewId).toString();
+	}
 
-    @RequiredArgsConstructor
-    private static class RequestParameterExpression implements Expression {
+	@RequiredArgsConstructor
+	private static class RequestParameterExpression implements Expression {
 
-        private final String parameterName;
+		private final String parameterName;
 
-        @Override
-        public String getExpressionString() {
-            return parameterName;
-        }
+		@Override
+		public String getExpressionString() {
+			return parameterName;
+		}
 
-        @Override
-        public Object getValue(Object context) {
-            ParameterMap parameters = (ParameterMap) context;
-            return parameters.asMap().get(parameterName);
-        }
+		@Override
+		public Object getValue(Object context) {
+			ParameterMap parameters = (ParameterMap) context;
+			return parameters.asMap().get(parameterName);
+		}
 
-        @Override
-        public Class<?> getValueType(Object context) {
-            return String.class;
-        }
+		@Override
+		public Class<?> getValueType(Object context) {
+			return String.class;
+		}
 
-        @Override
-        public void setValue(Object context, Object value) {
-            throw new UnsupportedOperationException("Setting request parameters is not allowed");
-        }
+		@Override
+		public void setValue(Object context, Object value) {
+			throw new UnsupportedOperationException("Setting request parameters is not allowed");
+		}
 
-        @Override
-        public String toString() {
-            return "parameter:'" + parameterName + "'";
-        }
-    }
+		@Override
+		public String toString() {
+			return "parameter:'" + parameterName + "'";
+		}
+	}
 
 }
