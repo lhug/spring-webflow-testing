@@ -25,17 +25,17 @@ public class StubFlowTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void shouldThrowExceptionWhenFlowIdIsNull() throws Exception {
+	public void shouldThrowExceptionWhenFlowIdIsNull() {
 		new StubFlow(null, "state");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void shouldThrowExceptionWhenEndStateIdIsNull() throws Exception {
+	public void shouldThrowExceptionWhenEndStateIdIsNull() {
 		new StubFlow("state", null);
 	}
 
 	@Test
-	public void shouldCreateStubFlowWithFlowIdAndEndStateId() throws Exception {
+	public void shouldCreateStubFlowWithFlowIdAndEndStateId() {
 		StubFlow result = new StubFlow("flowId", "endStateId");
 
 		assertThat(result.getFlowDefinitionId()).isEqualTo("flowId");
@@ -43,7 +43,7 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void shouldReturnExecutableFlow() throws Exception {
+	public void shouldReturnExecutableFlow() {
 		FlowDefinition result = sut.getFlowDefinition();
 
 		runAndAssertEnd(result, null);
@@ -59,7 +59,7 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void flowShouldEmitEndStateId() throws Exception {
+	public void flowShouldEmitEndStateId() {
 		FlowDefinition result = sut.getFlowDefinition();
 
 		FlowExecutionOutcome outcome = runAndAssertEnd(result, null);
@@ -68,19 +68,19 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void shouldCacheFlowDefinition() throws Exception {
+	public void shouldCacheFlowDefinition() {
 		FlowDefinition result = sut.getFlowDefinition();
 
 		assertThat(result).isSameAs(sut.getFlowDefinition());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void shouldThrowExceptionWhenTryingToSetNullAsEndStateId() throws Exception {
+	public void shouldThrowExceptionWhenTryingToSetNullAsEndStateId() {
 		sut.setEndStateId(null);
 	}
 
 	@Test
-	public void shouldEmitUpdatedFlowDefinitionWhenEndStateIdChanges() throws Exception {
+	public void shouldEmitUpdatedFlowDefinitionWhenEndStateIdChanges() {
 		FlowDefinition before = sut.getFlowDefinition();
 
 		sut.setEndStateId("otherEndState");
@@ -94,15 +94,14 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void shouldReturnEmptyMapBeforeFlowWasExecuted() throws Exception {
+	public void shouldReturnEmptyMapBeforeFlowWasExecuted() {
 		AttributeMap<Object> result = sut.getInputAttributes();
 
 		assertThat(result.asMap()).isEmpty();
 	}
 
 	@Test
-	public void shouldReturnPassedInputAttributesWhenFlowWasExecutedWithInputAttributes()
-			throws Exception {
+	public void shouldReturnPassedInputAttributesWhenFlowWasExecutedWithInputAttributes() {
 		LocalAttributeMap<String> input = new LocalAttributeMap<>("key", "input");
 
 		runAndAssertEnd(sut.getFlowDefinition(), input);
@@ -112,7 +111,7 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void shouldResetInputAttributesAfterFetching() throws Exception {
+	public void shouldResetInputAttributesAfterFetching() {
 		LocalAttributeMap<String> input = new LocalAttributeMap<>("key", "input");
 		runAndAssertEnd(sut.getFlowDefinition(), input);
 		sut.getInputAttributes();
@@ -123,7 +122,7 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void shouldEmitOutputAttributes() throws Exception {
+	public void shouldEmitOutputAttributes() {
 		sut.addOutputAttribute("out", "put");
 
 		FlowExecutionOutcome result = runAndAssertEnd(sut.getFlowDefinition(), null);
@@ -132,7 +131,7 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void shouldEmitMultipleOutputAttributes() throws Exception {
+	public void shouldEmitMultipleOutputAttributes() {
 		sut.addOutputAttribute("key", "value");
 		byte[] other = new byte[] { 1, 1, 2, 3, 5, 8 };
 		sut.addOutputAttribute("other", other);
@@ -144,7 +143,7 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void shouldEmitPassedOutputMap() throws Exception {
+	public void shouldEmitPassedOutputMap() {
 		sut.setOutputAttributes(Collections.singletonMap("left", "right"));
 
 		AttributeMap<Object> result = runAndAssertEnd(sut.getFlowDefinition(), null).getOutput();
@@ -153,7 +152,7 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void shouldUpdateOutputAttributesAfterAssembly() throws Exception {
+	public void shouldUpdateOutputAttributesAfterAssembly() {
 		FlowDefinition definition = sut.getFlowDefinition();
 
 		sut.addOutputAttribute("some", "value");

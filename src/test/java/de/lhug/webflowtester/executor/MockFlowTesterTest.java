@@ -1,26 +1,27 @@
 package de.lhug.webflowtester.executor;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.Test;
-import org.springframework.binding.message.Message;
-import org.springframework.binding.message.MessageBuilder;
-import org.springframework.binding.message.MessageContext;
-import org.springframework.webflow.core.collection.AttributeMap;
-import org.springframework.webflow.execution.FlowExecution;
-import org.springframework.webflow.test.MockExternalContext;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import de.lhug.webflowtester.builder.MockFlowBuilder;
 import de.lhug.webflowtester.builder.XMLMockFlowBuilder;
 import de.lhug.webflowtester.builder.configuration.FlowTestContext;
 import de.lhug.webflowtester.builder.configuration.XMLMockFlowConfiguration;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import org.junit.Test;
+import org.springframework.binding.message.Message;
+import org.springframework.binding.message.MessageBuilder;
+import org.springframework.binding.message.MessageContext;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockServletContext;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.webflow.core.collection.AttributeMap;
+import org.springframework.webflow.execution.FlowExecution;
+import org.springframework.webflow.test.MockExternalContext;
 
 public class MockFlowTesterTest {
 
@@ -30,7 +31,7 @@ public class MockFlowTesterTest {
 	private MockFlowTester sut;
 
 	@Test
-	public void shouldBuildMockFlowExecutorFromConfiguration() throws Exception {
+	public void shouldBuildMockFlowExecutorFromConfiguration() {
 		XMLMockFlowConfiguration simpleFlow = new XMLMockFlowConfiguration(
 				"/simpleFlows/standaloneFlow.xml");
 		MockFlowBuilder simpleFlowBuilder = new XMLMockFlowBuilder(simpleFlow);
@@ -41,7 +42,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test
-	public void shouldReturnNullAsCurrentFlowExecutionIfFlowIsNotStarted() throws Exception {
+	public void shouldReturnNullAsCurrentFlowExecutionIfFlowIsNotStarted() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 
@@ -60,7 +61,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test
-	public void shouldReturnCurrentFlowExecutionWhenFlowIsStarted() throws Exception {
+	public void shouldReturnCurrentFlowExecutionWhenFlowIsStarted() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
@@ -72,7 +73,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test
-	public void shouldStartFlowExecution() throws Exception {
+	public void shouldStartFlowExecution() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 
@@ -85,7 +86,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test
-	public void shouldSetCurrentStateWithoutEnteringOtherStates() throws Exception {
+	public void shouldSetCurrentStateWithoutEnteringOtherStates() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 
@@ -98,7 +99,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void shouldThrowIllegalStateExceptionWhenNoEventIsSetWhenResumingFlow() throws Exception {
+	public void shouldThrowIllegalStateExceptionWhenNoEventIsSetWhenResumingFlow() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
@@ -107,7 +108,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test
-	public void shouldResumeFlowWithGivenEventId() throws Exception {
+	public void shouldResumeFlowWithGivenEventId() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
@@ -122,7 +123,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test
-	public void shouldPassInputAttributes() throws Exception {
+	public void shouldPassInputAttributes() {
 		initConfigFrom("/simpleFlows/flowWithInput.xml");
 		initSut();
 		Map<String, String> arguments = Collections.singletonMap("inputArgument", "this is a String");
@@ -135,7 +136,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test
-	public void shouldResumeFlowWithInputArguments() throws Exception {
+	public void shouldResumeFlowWithInputArguments() {
 		initConfigFrom("/simpleFlows/flowWithInput.xml");
 		initSut();
 		Map<String, String> arguments = Collections.singletonMap("inputParameter", "well, why not");
@@ -150,8 +151,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void shouldThrowIllegalStateExceptionWhenAssertingEndedFlowExecutionBeforeFlowWasStarted()
-			throws Exception {
+	public void shouldThrowIllegalStateExceptionWhenAssertingEndedFlowExecutionBeforeFlowWasStarted() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 
@@ -159,7 +159,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test(expected = AssertionError.class)
-	public void shouldThrowExceptionWhenAssertingEndedFlowExecutionOnActiveFlow() throws Exception {
+	public void shouldThrowExceptionWhenAssertingEndedFlowExecutionOnActiveFlow() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
@@ -168,7 +168,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test
-	public void shouldAssertFlowExecutionHasEnded() throws Exception {
+	public void shouldAssertFlowExecutionHasEnded() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
@@ -179,8 +179,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void shouldThrowIllegalStateExceptionWhenAssertingOutcomeBeforeFlowWasStarted()
-			throws Exception {
+	public void shouldThrowIllegalStateExceptionWhenAssertingOutcomeBeforeFlowWasStarted() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 
@@ -188,7 +187,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void shouldThrowExceptionWhenAssertionOutcomeBeforeFlowHasended() throws Exception {
+	public void shouldThrowExceptionWhenAssertionOutcomeBeforeFlowHasEnded() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
@@ -197,7 +196,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test(expected = AssertionError.class)
-	public void shouldThrowExceptionWhenOutcomeIsNotAsExpected() throws Exception {
+	public void shouldThrowExceptionWhenOutcomeIsNotAsExpected() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
@@ -208,7 +207,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test
-	public void shoultAssertCorrectFlowExecutionOutcome() throws Exception {
+	public void shouldAssertCorrectFlowExecutionOutcome() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
@@ -219,8 +218,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void shouldThrowExceptionWhenGettingOutputArgumentsBeforeFlowWasStarted()
-			throws Exception {
+	public void shouldThrowExceptionWhenGettingOutputArgumentsBeforeFlowWasStarted() {
 		initConfigFrom("/simpleFlows/flowWithOutput.xml");
 		initSut();
 
@@ -228,7 +226,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void shouldThrowExceptionWhenGettingOutputArgumentsBeforeFlowHasEnded() throws Exception {
+	public void shouldThrowExceptionWhenGettingOutputArgumentsBeforeFlowHasEnded() {
 		initConfigFrom("/simpleFlows/flowWithOutput.xml");
 		initSut();
 		sut.startFlow(Collections.singletonMap("to", "bananas"));
@@ -237,7 +235,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test
-	public void shouldReturnOutputAttributesWhenFlowHasEnded() throws Exception {
+	public void shouldReturnOutputAttributesWhenFlowHasEnded() {
 		initConfigFrom("/simpleFlows/flowWithOutput.xml");
 		initSut();
 		sut.startFlow(Collections.singletonMap("to", "output"));
@@ -248,8 +246,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void shouldThrowExceptionWhenAssertingExternalRedirectBeforeFlowWasStarted()
-			throws Exception {
+	public void shouldThrowExceptionWhenAssertingExternalRedirectBeforeFlowWasStarted() {
 		initConfigFrom("/simpleFlows/flowWithOutput.xml");
 		initSut();
 
@@ -257,8 +254,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void shouldThrowExceptionWhenAssertingExternalRedirectBeforeFlowHasEnded()
-			throws Exception {
+	public void shouldThrowExceptionWhenAssertingExternalRedirectBeforeFlowHasEnded() {
 		initConfigFrom("/simpleFlows/flowWithOutput.xml");
 		initSut();
 		sut.startFlow(Collections.singletonMap("to", "bananas"));
@@ -267,7 +263,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test(expected = AssertionError.class)
-	public void shouldThrowExceptionWhenAssertingExternalRedirectToWrongUrl() throws Exception {
+	public void shouldThrowExceptionWhenAssertingExternalRedirectToWrongUrl() {
 		initConfigFrom("/simpleFlows/flowWithOutput.xml");
 		initSut();
 		sut.startFlow(Collections.singletonMap("to", "redirect"));
@@ -276,7 +272,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test
-	public void shouldAssertExternalRedirect() throws Exception {
+	public void shouldAssertExternalRedirect() {
 		initConfigFrom("/simpleFlows/flowWithOutput.xml");
 		initSut();
 		sut.startFlow(Collections.singletonMap("to", "redirect"));
@@ -285,8 +281,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void shouldThrowExceptionWhenTryingToAccessCurrentStateBeforeFlowWasStarted()
-			throws Exception {
+	public void shouldThrowExceptionWhenTryingToAccessCurrentStateBeforeFlowWasStarted() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 
@@ -294,8 +289,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void shouldThrowExceptionWhenTryingToAccessCurrentStateAfterFlowHasEnded()
-			throws Exception {
+	public void shouldThrowExceptionWhenTryingToAccessCurrentStateAfterFlowHasEnded() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
@@ -306,7 +300,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test(expected = AssertionError.class)
-	public void shouldThrowExceptionWhenAssertingWrongStateId() throws Exception {
+	public void shouldThrowExceptionWhenAssertingWrongStateId() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
@@ -315,7 +309,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test
-	public void shouldAssertCurrentStateId() throws Exception {
+	public void shouldAssertCurrentStateId() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
@@ -324,7 +318,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void shouldThrowExceptionWhenAccessingScopeBeforeFlowWasStarted() throws Exception {
+	public void shouldThrowExceptionWhenAccessingScopeBeforeFlowWasStarted() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 
@@ -332,7 +326,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test(expected = IllegalStateException.class)
-	public void shouldThrowExceptionWhenAccessingScopeAfterFlowEnded() throws Exception {
+	public void shouldThrowExceptionWhenAccessingScopeAfterFlowEnded() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
@@ -343,7 +337,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test
-	public void shouldReturnAttributeMapWhenAccessingScopeDuringFlowExecution() throws Exception {
+	public void shouldReturnAttributeMapWhenAccessingScopeDuringFlowExecution() {
 		initConfigFrom("/simpleFlows/flowWithInput.xml");
 		initSut();
 		Map<String, String> arguments = Collections.singletonMap("inputArgument", "this is a String");
@@ -355,7 +349,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test
-	public void shouldReturnNullIfNoRequestHasBeenSent() throws Exception {
+	public void shouldReturnNullIfNoRequestHasBeenSent() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 
@@ -365,7 +359,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test
-	public void shouldReturnLastRequestContextAfterRequestHasBeenSent() throws Exception {
+	public void shouldReturnLastRequestContextAfterRequestHasBeenSent() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
@@ -377,7 +371,7 @@ public class MockFlowTesterTest {
 	}
 
 	@Test
-	public void shouldReturnAllMessages() throws Exception {
+	public void shouldReturnAllMessages() {
 		initConfigFrom("/simpleFlows/messageAddingFlow.xml");
 		context = new FlowTestContext();
 		context.addBean("service", new SomeService());
@@ -394,6 +388,7 @@ public class MockFlowTesterTest {
 	}
 
 	public static class SomeService {
+		@SuppressWarnings("unused") // used in flow
 		public void addMessage(MessageContext messageContext) {
 			messageContext.addMessage(new MessageBuilder()
 					.source("service")
@@ -401,4 +396,30 @@ public class MockFlowTesterTest {
 		}
 	}
 
+	@Test
+	public void shouldStartFlowWithPassedRequestObject() {
+		initConfigFrom("/simpleFlows/flowWithOutput.xml");
+		initSut();
+		MockHttpServletRequest request = MockMvcRequestBuilders.get("/some/path").buildRequest(new MockServletContext());
+		sut.setRequest(request);
+		sut.startFlow(Collections.singletonMap("to", "emitRequest"));
+
+		assertThat(sut.getOutputAttributes().get("request"))
+				.isSameAs(request);
+	}
+
+	@Test
+	public void shouldResumeFlowWithPassedRequestObject() {
+		initConfigFrom("/simpleFlows/standaloneFlow.xml");
+		initSut();
+		sut.startFlow();
+
+		Map<String, String> request = new HashMap<>();
+		sut.setRequest(request);
+
+		sut.setEventId("page");
+		sut.resumeFlow();
+
+		assertThat(sut.getLastRequestContext().getNativeRequest()).isSameAs(request);
+	}
 }

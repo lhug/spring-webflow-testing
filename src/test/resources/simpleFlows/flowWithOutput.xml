@@ -7,6 +7,7 @@
 	<input name="to" type="string" />
 	<decision-state id="decider">
 		<if test="flowScope.to == 'redirect'" then="redirect" />
+		<if test="flowScope.to == 'emitRequest'" then="emitRequest" />
 		<if test="flowScope.to == 'output'" then="output" else="stop" />
 	</decision-state>
 	
@@ -16,5 +17,8 @@
 	
 	<end-state id="output">
 		<output name="out" value="'hooray'"/>
+	</end-state>
+	<end-state id="emitRequest">
+		<output name="request" value="externalContext.nativeRequest" />
 	</end-state>
 </flow>

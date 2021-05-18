@@ -93,6 +93,7 @@ public class MockFlowTester {
 	private FlowExecutionImpl execution;
 	private MockExternalContext context;
 	private String eventId;
+	private Object request;
 
 	/**
 	 * Returns the current Flow Execution.
@@ -148,6 +149,9 @@ public class MockFlowTester {
 
 	private void newContext() {
 		context = new MockExternalContext();
+		if(request != null) {
+			context.setNativeRequest(request);
+		}
 	}
 
 	private void initFlowExecution() {
@@ -390,5 +394,22 @@ public class MockFlowTester {
 			Message[] allMessages = context.getMessageContext().getAllMessages();
 			messages = new HashSet<>(Arrays.asList(allMessages));
 		}
+	}
+
+	/**
+	 * Sets the request object to hold during flow execution
+	 *
+	 * If this is not set, the {@link ExternalContext} used during execution
+	 * will only contain an empty Object.
+	 * Setting the request object here ensures that every {@code ExternalContext}
+	 * holds this request object.
+	 * <p>
+	 * Passing null to this method unsets the held object and the {@code ExternalContext}
+	 * reverts to using an empty Object.
+	 *
+	 * @param request the request object to hold during flow execution
+	 */
+	public void setRequest(Object request) {
+		this.request = request;
 	}
 }

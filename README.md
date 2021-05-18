@@ -4,7 +4,7 @@ A utility library to allow simple testing of Spring WebFlows
 
 ## Disclaimer
 
-This library is created with `JUnit 4.12` and `spring WebFlow 2.3.3-RELEASE`, utilizing JDK 8. So far, no guarantees are made about using it on other JDK versions or dependency versions.
+This library is created with `JUnit 4.12` and `spring WebFlow 2.5.1-RELEASE`, utilizing JDK 8. So far, no guarantees are made about using it on other JDK versions or dependency versions.
 
 ## Overview
 
@@ -28,6 +28,7 @@ The library also offers an `XMLMockFlowBuilder` to build a testable flow definit
 * Starting flow at specific state
 * Easy loading of XML-flows
 * Easy mocking of Subflows
+* Holding a request-Object within the external context
 
 ## Restrictions
 
