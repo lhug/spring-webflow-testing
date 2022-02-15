@@ -1,216 +1,215 @@
 package de.lhug.webflowtester.builder.configuration;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.junit.Test;
 import org.springframework.webflow.definition.registry.FlowDefinitionHolder;
 
 import de.lhug.webflowtester.builder.MessageContainer.Message;
 import de.lhug.webflowtester.builder.MessageContainer.Messages;
 import de.lhug.webflowtester.stub.StubFlow;
-import lombok.Value;
 
 public class FlowTestContextTest {
 
-    private FlowTestContext sut = new FlowTestContext();
+	private FlowTestContext sut = new FlowTestContext();
 
-    private TestBean offer = new TestBean("default bean", 4);
+	private final TestBean offer = new TestBean("default bean", 4);
 
-    @Value
-    public class TestBean {
-        private final String name;
-        private final int number;
-    }
+	@Getter
+	@AllArgsConstructor
+	public static class TestBean {
+		private final String name;
+		private final int number;
+	}
 
-    @Test
-    public void shouldReportFalseWhenNoBeanHasBeenAdded() throws Exception {
-        boolean result = sut.containsBean(offer);
+	@Test
+	public void shouldReportFalseWhenNoBeanHasBeenAdded() {
+		boolean result = sut.containsBean(offer);
 
-        assertThat(result, is(false));
-    }
+		assertThat(result).isFalse();
+	}
 
-    @Test
-    public void shouldReportTrueWhenBeanHasBeenAdded() throws Exception {
-        sut.addBean(offer);
+	@Test
+	public void shouldReportTrueWhenBeanHasBeenAdded() {
+		sut.addBean(offer);
 
-        boolean result = sut.containsBean(offer);
+		boolean result = sut.containsBean(offer);
 
-        assertThat(result, is(true));
-    }
+		assertThat(result).isTrue();
+	}
 
-    @Test
-    public void shouldReportFalseWhenBeanWithGivenNameDoesNotExist() throws Exception {
-        boolean result = sut.containsBeanWithName("testBean");
+	@Test
+	public void shouldReportFalseWhenBeanWithGivenNameDoesNotExist() {
+		boolean result = sut.containsBeanWithName("testBean");
 
-        assertThat(result, is(false));
-    }
+		assertThat(result).isFalse();
+	}
 
-    @Test
-    public void shouldReportTrueWhenBeanWithGivenNameHasBeenAdded() throws Exception {
-        sut.addBean("testBean", offer);
+	@Test
+	public void shouldReportTrueWhenBeanWithGivenNameHasBeenAdded() {
+		sut.addBean("testBean", offer);
 
-        boolean result = sut.containsBeanWithName("testBean");
+		boolean result = sut.containsBeanWithName("testBean");
 
-        assertThat(result, is(true));
-    }
+		assertThat(result).isTrue();
+	}
 
-    @Test
-    public void shouldAddTestBeanWithGeneratedName() throws Exception {
-        sut.addBean(offer);
+	@Test
+	public void shouldAddTestBeanWithGeneratedName() {
+		sut.addBean(offer);
 
-        boolean result = sut.containsBeanWithName("testBean");
+		boolean result = sut.containsBeanWithName("testBean");
 
-        assertThat(result, is(true));
-    }
+		assertThat(result).isTrue();
+	}
 
-    @Test
-    public void shouldAddBeanWithGeneratedName() throws Exception {
-        List<String> bean = new ArrayList<>();
-        bean.add("content");
-        sut.addBean(bean);
+	@Test
+	public void shouldAddBeanWithGeneratedName() {
+		List<String> bean = new ArrayList<>();
+		bean.add("content");
+		sut.addBean(bean);
 
-        boolean result = sut.containsBeanWithName("stringList");
+		boolean result = sut.containsBeanWithName("stringList");
 
-        assertThat(result, is(true));
-    }
+		assertThat(result).isTrue();
+	}
 
-    @Test
-    public void shouldAddBeanWithGivenName() throws Exception {
-        List<String> bean = new ArrayList<>();
-        bean.add("content");
-        sut.addBean("strings", bean);
+	@Test
+	public void shouldAddBeanWithGivenName() {
+		List<String> bean = new ArrayList<>();
+		bean.add("content");
+		sut.addBean("strings", bean);
 
-        boolean result = sut.containsBeanWithName("strings");
+		boolean result = sut.containsBeanWithName("strings");
 
-        assertThat(result, is(true));
-    }
+		assertThat(result).isTrue();
+	}
 
-    @Test
-    public void shouldReturnViewOfRegisteredBeans() throws Exception {
-        sut.addBean(offer);
+	@Test
+	public void shouldReturnViewOfRegisteredBeans() {
+		sut.addBean(offer);
 
-        Map<String, Object> result = sut.getBeans();
+		Map<String, Object> result = sut.getBeans();
 
-        assertThat(result, hasEntry("testBean", offer));
-        assertThat(result.size(), is(1));
-    }
+		assertThat(result)
+				.containsExactly(entry("testBean", offer));
+	}
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void shouldReturnUnmodifiableViewOfRegisteredBeans() throws Exception {
-        Map<String, Object> result = sut.getBeans();
+	@Test(expected = UnsupportedOperationException.class)
+	public void shouldReturnUnmodifiableViewOfRegisteredBeans() {
+		Map<String, Object> result = sut.getBeans();
 
-        result.put("key", "value");
-    }
+		result.put("key", "value");
+	}
 
-    @Test
-    public void shouldCreateContextWithMultipleRegisteredBeansWithGeneratedNames() throws Exception {
-        List<String> strings = Arrays.asList("string");
-        TestBean testBean = new TestBean("name", 4);
+	@Test
+	public void shouldCreateContextWithMultipleRegisteredBeansWithGeneratedNames() {
+		List<String> strings = List.of("string");
+		TestBean testBean = new TestBean("name", 4);
 
-        sut = new FlowTestContext(strings, testBean);
+		sut = new FlowTestContext(strings, testBean);
 
-        Map<String, Object> result = sut.getBeans();
+		Map<String, Object> result = sut.getBeans();
 
-        assertThat(result.size(), is(2));
-        assertThat(result, hasEntry("stringList", strings));
-        assertThat(result, hasEntry("testBean", testBean));
-    }
+		assertThat(result)
+				.containsExactly(
+						entry("stringList", strings),
+						entry("testBean", testBean)
+				);
+	}
 
-    @Test
-    public void shouldReturnEmptyListWhenCalledBeforeAddingSubflows() throws Exception {
-        List<FlowDefinitionHolder> result = sut.getSubFlows();
+	@Test
+	public void shouldReturnEmptyListWhenCalledBeforeAddingSubFlows() {
+		List<FlowDefinitionHolder> result = sut.getSubFlows();
 
-        assertThat(result, is(empty()));
-    }
+		assertThat(result).isEmpty();
+	}
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void shouldReturnUnmodifiableListOfSubFlows() throws Exception {
-        List<FlowDefinitionHolder> subFlows = sut.getSubFlows();
+	@Test(expected = UnsupportedOperationException.class)
+	public void shouldReturnUnmodifiableListOfSubFlows() {
+		List<FlowDefinitionHolder> subFlows = sut.getSubFlows();
 
-        subFlows.add(mock(FlowDefinitionHolder.class));
-    }
+		subFlows.add(mock(FlowDefinitionHolder.class));
+	}
 
-    @Test
-    public void shouldAddSubFlow() throws Exception {
-        StubFlow stub = new StubFlow("flow", "end");
+	@Test
+	public void shouldAddSubFlow() {
+		StubFlow stub = new StubFlow("flow", "end");
 
-        sut.addSubFlow(stub);
+		sut.addSubFlow(stub);
 
-        assertThat(sut.getSubFlows(), contains(sameInstance(stub)));
-    }
+		assertThat(sut.getSubFlows()).containsExactly(stub);
+	}
 
-    @Test
-    public void shouldReturnEmptyMessagesWhenNoMessagesAreConfigured() throws Exception {
-        Messages result = sut.getMessages(Locale.GERMANY);
+	@Test
+	public void shouldReturnEmptyMessagesWhenNoMessagesAreConfigured() throws Exception {
+		Messages results = sut.getMessages(Locale.GERMANY);
 
-        assertThat(extractMessages(result), is(empty()));
+		var result = extractMessages(results);
+		assertThat(result).isEmpty();
 
-    }
+	}
 
-    @SuppressWarnings("unchecked")
-    private Set<Message> extractMessages(Messages offer) throws Exception {
-        Field field = Messages.class.getDeclaredField("messageStore");
-        field.setAccessible(true);
-        return (Set<Message>) field.get(offer);
+	@SuppressWarnings("unchecked")
+	private Set<Message> extractMessages(Messages offer) throws Exception {
+		Field field = Messages.class.getDeclaredField("messageStore");
+		field.setAccessible(true);
+		return (Set<Message>) field.get(offer);
 
-    }
+	}
 
-    @Test
-    public void shouldAddSingleMessageWithDesiredLocale() throws Exception {
-        sut.addMessage(Locale.CHINA, "xi", "jinping");
+	@Test
+	public void shouldAddSingleMessageWithDesiredLocale() throws Exception {
+		sut.addMessage(Locale.CHINA, "xi", "jinping");
 
-        Set<Message> messages = extractMessages(sut.getMessages(Locale.CHINA));
-        assertThat(messages,
-                contains(new Message("xi", "jinping")));
-    }
+		var messages = extractMessages(sut.getMessages(Locale.CHINA));
+		assertThat(messages).containsExactly(new Message("xi", "jinping"));
+	}
 
-    @Test
-    public void shouldAddMultipleMessagesWithDesiredLocale() throws Exception {
-        Map<String, String> values = new HashMap<>();
-        values.put("winnie", "pooh bear");
-        values.put("xi", "jinping");
+	@Test
+	public void shouldAddMultipleMessagesWithDesiredLocale() throws Exception {
+		Map<String, String> values = new HashMap<>();
+		values.put("winnie", "pooh bear");
+		values.put("xi", "jinping");
 
-        sut.addMessages(Locale.CHINESE, values);
+		sut.addMessages(Locale.CHINESE, values);
 
-        Set<Message> messages = extractMessages(sut.getMessages(Locale.CHINESE));
-        assertThat(messages, containsInAnyOrder(
-                new Message("winnie", "pooh bear"),
-                new Message("xi", "jinping")));
-    }
+		Set<Message> messages = extractMessages(sut.getMessages(Locale.CHINESE));
+		assertThat(messages)
+				.containsOnly(
+						new Message("winnie", "pooh bear"),
+						new Message("xi", "jinping")
+				);
+	}
 
-    @Test
-    public void shouldReturnAllRegisteredMessagesAsMap() throws Exception {
-        sut.addMessage(Locale.GERMAN, "glas", "wasser");
-        sut.addMessage(Locale.FRENCH, "verre", "eau");
+	@Test
+	public void shouldReturnAllRegisteredMessagesAsMap() throws Exception {
+		sut.addMessage(Locale.GERMAN, "Glas", "Wasser");
+		sut.addMessage(Locale.FRENCH, "verre", "eau");
 
-        Map<Locale, Messages> result = sut.getAllMessages();
+		Map<Locale, Messages> result = sut.getAllMessages();
 
-        assertThat(result.size(), is(2));
+		assertThat(result).hasSize(2);
+		assertThat(extractMessages(result.get(Locale.GERMAN))).containsExactly(new Message("Glas", "Wasser"));
+		assertThat(extractMessages(result.get(Locale.FRENCH))).containsExactly(new Message("verre", "eau"));
+	}
 
-        assertThat(extractMessages(result.get(Locale.GERMAN)), contains(new Message("glas", "wasser")));
-        assertThat(extractMessages(result.get(Locale.FRENCH)), contains(new Message("verre", "eau")));
-    }
+	@Test(expected = UnsupportedOperationException.class)
+	public void returnedMessagesMapShouldBeUnmodifiable() {
+		Map<Locale, Messages> result = sut.getAllMessages();
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void returnedMessagesMapShouldBeUnmodifiable() throws Exception {
-        Map<Locale, Messages> result = sut.getAllMessages();
-
-        result.put(Locale.GERMAN, new Messages());
-    }
+		result.put(Locale.GERMAN, new Messages());
+	}
 }

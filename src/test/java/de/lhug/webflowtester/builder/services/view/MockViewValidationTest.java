@@ -1,23 +1,18 @@
 package de.lhug.webflowtester.builder.services.view;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.junit.Assert.assertThat;
-
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import de.lhug.webflowtester.builder.MessageContainer.Messages;
 import de.lhug.webflowtester.builder.XMLMockFlowBuilder;
 import de.lhug.webflowtester.builder.configuration.FlowTestContext;
 import de.lhug.webflowtester.builder.configuration.XMLMockFlowConfiguration;
 import de.lhug.webflowtester.executor.MockFlowTester;
 import de.lhug.webflowtester.helper.BeanModelValidator;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MockViewValidationTest {
 
@@ -31,50 +26,51 @@ public class MockViewValidationTest {
     }
 
     private FlowTestContext flowContext() {
-        FlowTestContext ctx = new FlowTestContext(new BeanModelValidator());
-        Messages msgs = ctx.getMessages(Locale.getDefault());
-        msgs.addMessage("amount.tooLow", "too low");
-        msgs.addMessage("amount.tooHigh", "too high");
+        var ctx = new FlowTestContext(new BeanModelValidator());
+        var messages = ctx.getMessages(Locale.getDefault());
+        messages.addMessage("amount.tooLow", "too low");
+        messages.addMessage("amount.tooHigh", "too high");
         return ctx;
     }
 
     @Test
-    public void shouldNotValidateIfValidationIsDisabled() throws Exception {
+    public void shouldNotValidateIfValidationIsDisabled() {
         tester.startFlow();
         tester.setEventId("doNotValidate");
 
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("amount", "-1");
+        var parameters = Map.of("amount", "-1");
 
         tester.resumeFlow(parameters);
-        Object result = tester.getOutputAttributes().get("beanModel");
+        var result = tester.getOutputAttributes().get("beanModel");
 
-        assertThat(result, hasProperty("amount", is(-1)));
+        assertThat(result).hasFieldOrPropertyWithValue("amount", -1);
     }
 
     @Test
-    public void shouldValidateIfValidationIsEnabled() throws Exception {
+    public void shouldValidateIfValidationIsEnabled() {
         tester.startFlow();
         tester.setEventId("doValidate");
 
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("amount", "-1");
+        var parameters = Map.of("amount", "-1");
 
         tester.resumeFlow(parameters);
 
-        assertThat(tester.getAllMessages(), contains(hasProperty("text", is("too low"))));
+        assertThat(tester.getAllMessages())
+                .singleElement()
+                .hasFieldOrPropertyWithValue("text", "too low");
     }
 
     @Test
-    public void shouldValidateIfValidationIsNotSet() throws Exception {
+    public void shouldValidateIfValidationIsNotSet() {
         tester.startFlow();
         tester.setEventId("decideOnValidation");
 
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put("amount", "101");
+        var parameters = Map.of("amount", "101");
 
         tester.resumeFlow(parameters);
 
-        assertThat(tester.getAllMessages(), contains(hasProperty("text", is("too high"))));
+        assertThat(tester.getAllMessages())
+                .singleElement()
+                .hasFieldOrPropertyWithValue("text", "too high");
     }
 }

@@ -1,92 +1,86 @@
 package de.lhug.webflowtester.builder;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertThat;
+import de.lhug.webflowtester.builder.MessageContainer.Message;
+import de.lhug.webflowtester.builder.MessageContainer.Messages;
+import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.junit.Test;
-
-import de.lhug.webflowtester.builder.MessageContainer;
-import de.lhug.webflowtester.builder.MessageContainer.Message;
-import de.lhug.webflowtester.builder.MessageContainer.Messages;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MessageContainerTest {
 
-    private MessageContainer sut = new MessageContainer();
+	private final MessageContainer sut = new MessageContainer();
 
-    @Test
-    public void shouldReturnMessagesMap() throws Exception {
-        Map<Locale, Messages> result = sut.getAllMessages();
+	@Test
+	public void shouldReturnMessagesMap() {
+		var result = sut.getAllMessages();
 
-        assertThat(result, is(not(nullValue())));
-    }
+		assertThat(result).isNotNull();
+	}
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void messagesMapShouldBeUnmodifiable() throws Exception {
-        Map<Locale, Messages> messages = sut.getAllMessages();
+	@Test
+	public void messagesMapShouldBeUnmodifiable() {
+		var messages = sut.getAllMessages();
 
-        messages.put(Locale.CHINESE, new Messages());
-    }
+		assertThatThrownBy(() -> messages.put(Locale.CHINESE, new Messages()))
+				.isInstanceOf(UnsupportedOperationException.class);
+	}
 
-    @Test
-    public void shouldReturnEmptyMessagesObjectWhenNoMessagesForLocaleHaveBeenAdded() throws Exception {
-        Messages result = sut.getMessages(Locale.TAIWAN);
+	@Test
+	public void shouldReturnEmptyMessagesObjectWhenNoMessagesForLocaleHaveBeenAdded() {
+		var result = sut.getMessages(Locale.TAIWAN);
 
-        assertThat(result.messageStore, is(empty()));
-    }
+		assertThat(result.messageStore).isEmpty();
+	}
 
-    @Test
-    public void shouldAddMessageForLocale() throws Exception {
-        assertThat(sut.getAllMessages().size(), is(0));
+	@Test
+	public void shouldAddMessageForLocale() {
+		assertThat(sut.getAllMessages()).isEmpty();
 
-        sut.addMessage(Locale.PRC, "key", "value");
+		sut.addMessage(Locale.PRC, "key", "value");
 
-        Map<Locale, Messages> allMessages = sut.getAllMessages();
-        assertThat(allMessages.size(), is(1));
-        assertThat(allMessages.get(Locale.PRC).messageStore, contains(new Message("key", "value")));
-    }
+		var allMessages = sut.getAllMessages();
 
-    @Test
-    public void shouldAllowAddingMessagesForLocale() throws Exception {
-        Messages messages = sut.getMessages(Locale.CHINESE);
+		assertThat(allMessages).hasSize(1);
+		assertThat(allMessages.get(Locale.PRC).messageStore).containsExactly(new Message("key", "value"));
+	}
 
-        messages.addMessage("left", "right");
+	@Test
+	public void shouldAllowAddingMessagesForLocale() {
+		var messages = sut.getMessages(Locale.CHINESE);
 
-        assertThat(messages.messageStore, contains(new Message("left", "right")));
-    }
+		messages.addMessage("left", "right");
 
-    @Test
-    public void shouldAllowAddingMultipleMessagesForLocale() throws Exception {
-        Messages messages = sut.getMessages(Locale.GERMANY);
+		assertThat(messages.messageStore).containsExactly(new Message("left", "right"));
+	}
 
-        messages
-                .addMessage("one", "two")
-                .addMessage("three", "four");
+	@Test
+	public void shouldAllowAddingMultipleMessagesForLocale() {
+		var messages = sut.getMessages(Locale.GERMANY);
 
-        assertThat(messages.messageStore, containsInAnyOrder(
-                new Message("one", "two"),
-                new Message("three", "four")));
-    }
+		messages
+				.addMessage("one", "two")
+				.addMessage("three", "four");
 
-    @Test
-    public void shouldAllowAddingMultipleMessagesWithLocale() throws Exception {
-        Map<String, String> messages = new HashMap<>();
-        messages.put("a", "b");
-        messages.put("c", "d");
+		assertThat(messages.messageStore).containsOnly(
+				new Message("one", "two"),
+				new Message("three", "four"));
+	}
 
-        sut.addMessages(Locale.CANADA_FRENCH, messages);
+	@Test
+	public void shouldAllowAddingMultipleMessagesWithLocale() {
+		var messages = Map.ofEntries(
+				Map.entry("a", "b"),
+				Map.entry("c", "d"));
 
-        assertThat(sut.getMessages(Locale.CANADA_FRENCH).messageStore, containsInAnyOrder(
-                new Message("a", "b"),
-                new Message("c", "d")));
-    }
+		sut.addMessages(Locale.CANADA_FRENCH, messages);
+
+		assertThat(sut.getMessages(Locale.CANADA_FRENCH).messageStore).containsOnly(
+				new Message("a", "b"),
+				new Message("c", "d"));
+	}
 
 }
