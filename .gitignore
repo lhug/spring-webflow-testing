@@ -2,9 +2,6 @@
 .gradle
 .project
 .settings
-gradlew
 bin
 build
-gradle
-gradlew.bat
 publishing.gradle
