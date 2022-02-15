@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class BeanModel {
 
-    private String name;
-    private int amount;
-    private List<String> entries;
+	private String name;
+	private int amount;
+	private List<String> entries;
 }

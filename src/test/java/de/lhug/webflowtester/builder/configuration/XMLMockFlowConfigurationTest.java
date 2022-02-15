@@ -1,15 +1,15 @@
 package de.lhug.webflowtester.builder.configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.io.Resource;
 import org.springframework.webflow.config.FlowDefinitionResource;
 
@@ -17,7 +17,7 @@ public class XMLMockFlowConfigurationTest {
 
 	private XMLMockFlowConfiguration sut;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		sut = new XMLMockFlowConfiguration("/inheritanceFlows/childFlow.xml");
 	}
@@ -131,11 +131,14 @@ public class XMLMockFlowConfigurationTest {
 		assertThat(sut.getFlowResources()).isEmpty();
 	}
 
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void shouldReturnUnmodifiableListOfResources() throws Exception {
 		List<FlowDefinitionResource> result = sut.getFlowResources();
 
-		result.add(mock(FlowDefinitionResource.class));
+		var mock = mock(FlowDefinitionResource.class);
+
+		assertThatThrownBy(() -> result.add(mock(FlowDefinitionResource.class)))
+				.isInstanceOf(UnsupportedOperationException.class);
 	}
 
 	@Test

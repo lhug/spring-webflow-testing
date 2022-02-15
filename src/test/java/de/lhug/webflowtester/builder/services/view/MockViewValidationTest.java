@@ -1,76 +1,74 @@
 package de.lhug.webflowtester.builder.services.view;
 
-import java.util.Locale;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import de.lhug.webflowtester.builder.XMLMockFlowBuilder;
 import de.lhug.webflowtester.builder.configuration.FlowTestContext;
 import de.lhug.webflowtester.builder.configuration.XMLMockFlowConfiguration;
 import de.lhug.webflowtester.executor.MockFlowTester;
 import de.lhug.webflowtester.helper.BeanModelValidator;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.Locale;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class MockViewValidationTest {
 
-    private MockFlowTester tester;
+	private MockFlowTester tester;
 
-    @Before
-    public void setUp() {
-        tester = MockFlowTester
-                .from(new XMLMockFlowBuilder(new XMLMockFlowConfiguration("/eventFlows/validationFlow.xml"))
-                        .withContext(flowContext()));
-    }
+	@BeforeEach
+	public void setUp() {
+		tester = MockFlowTester
+				.from(new XMLMockFlowBuilder(new XMLMockFlowConfiguration("/eventFlows/validationFlow.xml"))
+						.withContext(flowContext()));
+	}
 
-    private FlowTestContext flowContext() {
-        var ctx = new FlowTestContext(new BeanModelValidator());
-        var messages = ctx.getMessages(Locale.getDefault());
-        messages.addMessage("amount.tooLow", "too low");
-        messages.addMessage("amount.tooHigh", "too high");
-        return ctx;
-    }
+	private FlowTestContext flowContext() {
+		var ctx = new FlowTestContext(new BeanModelValidator());
+		var messages = ctx.getMessages(Locale.getDefault());
+		messages.addMessage("amount.tooLow", "too low");
+		messages.addMessage("amount.tooHigh", "too high");
+		return ctx;
+	}
 
-    @Test
-    public void shouldNotValidateIfValidationIsDisabled() {
-        tester.startFlow();
-        tester.setEventId("doNotValidate");
+	@Test
+	public void shouldNotValidateIfValidationIsDisabled() {
+		tester.startFlow();
+		tester.setEventId("doNotValidate");
 
-        var parameters = Map.of("amount", "-1");
+		var parameters = Map.of("amount", "-1");
 
-        tester.resumeFlow(parameters);
-        var result = tester.getOutputAttributes().get("beanModel");
+		tester.resumeFlow(parameters);
+		var result = tester.getOutputAttributes().get("beanModel");
 
-        assertThat(result).hasFieldOrPropertyWithValue("amount", -1);
-    }
+		assertThat(result).hasFieldOrPropertyWithValue("amount", -1);
+	}
 
-    @Test
-    public void shouldValidateIfValidationIsEnabled() {
-        tester.startFlow();
-        tester.setEventId("doValidate");
+	@Test
+	public void shouldValidateIfValidationIsEnabled() {
+		tester.startFlow();
+		tester.setEventId("doValidate");
 
-        var parameters = Map.of("amount", "-1");
+		var parameters = Map.of("amount", "-1");
 
-        tester.resumeFlow(parameters);
+		tester.resumeFlow(parameters);
 
-        assertThat(tester.getAllMessages())
-                .singleElement()
-                .hasFieldOrPropertyWithValue("text", "too low");
-    }
+		assertThat(tester.getAllMessages())
+				.singleElement()
+				.hasFieldOrPropertyWithValue("text", "too low");
+	}
 
-    @Test
-    public void shouldValidateIfValidationIsNotSet() {
-        tester.startFlow();
-        tester.setEventId("decideOnValidation");
+	@Test
+	public void shouldValidateIfValidationIsNotSet() {
+		tester.startFlow();
+		tester.setEventId("decideOnValidation");
 
-        var parameters = Map.of("amount", "101");
+		var parameters = Map.of("amount", "101");
 
-        tester.resumeFlow(parameters);
+		tester.resumeFlow(parameters);
 
-        assertThat(tester.getAllMessages())
-                .singleElement()
-                .hasFieldOrPropertyWithValue("text", "too high");
-    }
+		assertThat(tester.getAllMessages())
+				.singleElement()
+				.hasFieldOrPropertyWithValue("text", "too high");
+	}
 }

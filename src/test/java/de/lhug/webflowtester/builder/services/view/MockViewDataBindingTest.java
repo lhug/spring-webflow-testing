@@ -1,28 +1,25 @@
 package de.lhug.webflowtester.builder.services.view;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.binding.expression.Expression;
-import org.springframework.binding.message.Message;
-import org.springframework.webflow.core.collection.MutableAttributeMap;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import de.lhug.webflowtester.builder.XMLMockFlowBuilder;
 import de.lhug.webflowtester.builder.configuration.XMLMockFlowConfiguration;
 import de.lhug.webflowtester.executor.MockFlowTester;
 import de.lhug.webflowtester.helper.BeanModel;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.binding.expression.Expression;
+import org.springframework.binding.message.Message;
+import org.springframework.webflow.core.collection.MutableAttributeMap;
 
 public class MockViewDataBindingTest {
 
 	private MockFlowTester tester;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		tester = MockFlowTester
 				.from(new XMLMockFlowBuilder(

@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
  * A view factory creator that returns view factories that produce Mock View
  * implementations that can be used to assert that the correct view id was
  * selected as part of a flow execution test.
- * 
+ *
  */
 class MockViewFactoryCreator implements ViewFactoryCreator {
 

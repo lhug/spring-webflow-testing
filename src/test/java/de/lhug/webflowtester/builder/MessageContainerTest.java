@@ -1,14 +1,13 @@
 package de.lhug.webflowtester.builder;
 
-import de.lhug.webflowtester.builder.MessageContainer.Message;
-import de.lhug.webflowtester.builder.MessageContainer.Messages;
-import org.junit.Test;
-
-import java.util.Locale;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import de.lhug.webflowtester.builder.MessageContainer.Message;
+import de.lhug.webflowtester.builder.MessageContainer.Messages;
+import java.util.Locale;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 public class MessageContainerTest {
 

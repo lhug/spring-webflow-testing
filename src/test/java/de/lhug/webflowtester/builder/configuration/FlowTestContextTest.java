@@ -1,9 +1,13 @@
 package de.lhug.webflowtester.builder.configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 
+import de.lhug.webflowtester.builder.MessageContainer.Message;
+import de.lhug.webflowtester.builder.MessageContainer.Messages;
+import de.lhug.webflowtester.stub.StubFlow;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,15 +15,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.webflow.definition.registry.FlowDefinitionHolder;
-
-import de.lhug.webflowtester.builder.MessageContainer.Message;
-import de.lhug.webflowtester.builder.MessageContainer.Messages;
-import de.lhug.webflowtester.stub.StubFlow;
 
 public class FlowTestContextTest {
 
@@ -107,11 +106,12 @@ public class FlowTestContextTest {
 				.containsExactly(entry("testBean", offer));
 	}
 
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void shouldReturnUnmodifiableViewOfRegisteredBeans() {
 		Map<String, Object> result = sut.getBeans();
 
-		result.put("key", "value");
+		assertThatThrownBy(() -> result.put("key", "value"))
+				.isInstanceOf(UnsupportedOperationException.class);
 	}
 
 	@Test
@@ -137,11 +137,14 @@ public class FlowTestContextTest {
 		assertThat(result).isEmpty();
 	}
 
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void shouldReturnUnmodifiableListOfSubFlows() {
 		List<FlowDefinitionHolder> subFlows = sut.getSubFlows();
 
-		subFlows.add(mock(FlowDefinitionHolder.class));
+		var mock = mock(FlowDefinitionHolder.class);
+
+		assertThatThrownBy(() -> subFlows.add(mock))
+				.isInstanceOf(UnsupportedOperationException.class);
 	}
 
 	@Test
@@ -206,10 +209,11 @@ public class FlowTestContextTest {
 		assertThat(extractMessages(result.get(Locale.FRENCH))).containsExactly(new Message("verre", "eau"));
 	}
 
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void returnedMessagesMapShouldBeUnmodifiable() {
 		Map<Locale, Messages> result = sut.getAllMessages();
 
-		result.put(Locale.GERMAN, new Messages());
+		assertThatThrownBy(() -> result.put(Locale.GERMAN, new Messages()))
+				.isInstanceOf(UnsupportedOperationException.class);
 	}
 }

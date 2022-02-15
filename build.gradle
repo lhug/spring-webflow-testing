@@ -1,4 +1,7 @@
-apply plugin: 'java'
+plugins {
+	id 'java'
+	id "com.diffplug.spotless" version "6.3.0"
+}
 
 repositories {
 	mavenCentral()
@@ -25,7 +28,6 @@ dependencies {
 	)
 
 	testImplementation(
-		'junit:junit:4.12',
 		'javax.servlet:javax.servlet-api:3.1.0',
 		'org.assertj:assertj-core:3.22.0',
 		'org.projectlombok:lombok:1.18.22',
@@ -33,4 +35,17 @@ dependencies {
 		'org.springframework:spring-test:5.0.9.RELEASE',
 		'org.mockito:mockito-core:2.23.0'
 	)
+}
+
+test {
+	useJUnitPlatform()
+}
+
+spotless {
+	java {
+		removeUnusedImports()
+		indentWithTabs()
+		endWithNewline()
+		trimTrailingWhitespace()
+	}
 }

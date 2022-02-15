@@ -1,22 +1,17 @@
 package de.lhug.webflowtester.executor;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import de.lhug.webflowtester.builder.MockFlowBuilder;
 import de.lhug.webflowtester.builder.XMLMockFlowBuilder;
 import de.lhug.webflowtester.builder.configuration.FlowTestContext;
 import de.lhug.webflowtester.builder.configuration.XMLMockFlowConfiguration;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.binding.message.Message;
 import org.springframework.binding.message.MessageBuilder;
 import org.springframework.binding.message.MessageContext;
@@ -102,13 +97,14 @@ public class MockFlowTesterTest {
 		assertThat(execution.getActiveSession().getState().getId()).isEqualTo("step");
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void shouldThrowIllegalStateExceptionWhenNoEventIsSetWhenResumingFlow() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
 
-		sut.resumeFlow();
+		assertThatThrownBy(() -> sut.resumeFlow())
+				.isInstanceOf(IllegalStateException.class);
 	}
 
 	@Test
@@ -216,21 +212,23 @@ public class MockFlowTesterTest {
 		assertThat(sut.getFlowOutcome()).isEqualTo("bye");
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void shouldThrowExceptionWhenGettingOutputArgumentsBeforeFlowWasStarted() {
 		initConfigFrom("/simpleFlows/flowWithOutput.xml");
 		initSut();
 
-		sut.getOutputAttributes();
+		assertThatThrownBy(() -> sut.getOutputAttributes())
+				.isInstanceOf(IllegalStateException.class);
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void shouldThrowExceptionWhenGettingOutputArgumentsBeforeFlowHasEnded() {
 		initConfigFrom("/simpleFlows/flowWithOutput.xml");
 		initSut();
 		sut.startFlow(Collections.singletonMap("to", "bananas"));
 
-		sut.getOutputAttributes();
+		assertThatThrownBy(() -> sut.getOutputAttributes())
+				.isInstanceOf(IllegalStateException.class);
 	}
 
 	@Test
@@ -315,15 +313,16 @@ public class MockFlowTesterTest {
 		assertThat(sut.getCurrentStateId()).isEqualTo("start");
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void shouldThrowExceptionWhenAccessingScopeBeforeFlowWasStarted() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 
-		sut.getScope();
+		assertThatThrownBy(() -> sut.getScope())
+				.isInstanceOf(IllegalStateException.class);
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void shouldThrowExceptionWhenAccessingScopeAfterFlowEnded() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
@@ -331,7 +330,8 @@ public class MockFlowTesterTest {
 		sut.setEventId("close");
 		sut.resumeFlow();
 
-		sut.getScope();
+		assertThatThrownBy(() -> sut.getScope())
+				.isInstanceOf(IllegalStateException.class);
 	}
 
 	@Test
@@ -353,7 +353,7 @@ public class MockFlowTesterTest {
 
 		MockExternalContext result = sut.getLastRequestContext();
 
-		assertThat(result, is(nullValue()));
+		assertThat(result).isNull();
 	}
 
 	@Test

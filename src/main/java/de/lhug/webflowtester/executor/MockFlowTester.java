@@ -1,12 +1,17 @@
 package de.lhug.webflowtester.executor;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import de.lhug.webflowtester.builder.MockFlowBuilder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.binding.message.Message;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,13 +29,6 @@ import org.springframework.webflow.execution.View;
 import org.springframework.webflow.execution.factory.StaticFlowExecutionListenerLoader;
 import org.springframework.webflow.test.MockExternalContext;
 import org.springframework.webflow.test.MockParameterMap;
-
-import de.lhug.webflowtester.builder.MockFlowBuilder;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tester class for simplified WebFlow Testing

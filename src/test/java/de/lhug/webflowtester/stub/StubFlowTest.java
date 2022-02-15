@@ -1,11 +1,11 @@
 package de.lhug.webflowtester.stub;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Collections;
-
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.webflow.core.collection.AttributeMap;
 import org.springframework.webflow.core.collection.LocalAttributeMap;
 import org.springframework.webflow.core.collection.MutableAttributeMap;
@@ -19,19 +19,22 @@ public class StubFlowTest {
 
 	private StubFlow sut;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		sut = new StubFlow("flowId", "endStateId");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void shouldThrowExceptionWhenFlowIdIsNull() {
-		new StubFlow(null, "state");
+
+		assertThatThrownBy(() -> new StubFlow(null, "state"))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void shouldThrowExceptionWhenEndStateIdIsNull() {
-		new StubFlow("state", null);
+		assertThatThrownBy(() -> new StubFlow("state", null))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -49,7 +52,8 @@ public class StubFlowTest {
 		runAndAssertEnd(result, null);
 	}
 
-	private <V> FlowExecutionOutcome runAndAssertEnd(FlowDefinition definition,
+	private <V> FlowExecutionOutcome runAndAssertEnd(
+			FlowDefinition definition,
 			MutableAttributeMap<V> input) {
 		FlowExecution exec = new FlowExecutionImpl((Flow) definition);
 		exec.start(input, null);
@@ -74,9 +78,10 @@ public class StubFlowTest {
 		assertThat(result).isSameAs(sut.getFlowDefinition());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void shouldThrowExceptionWhenTryingToSetNullAsEndStateId() {
-		sut.setEndStateId(null);
+		assertThatThrownBy(() -> sut.setEndStateId(null))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -133,7 +138,7 @@ public class StubFlowTest {
 	@Test
 	public void shouldEmitMultipleOutputAttributes() {
 		sut.addOutputAttribute("key", "value");
-		byte[] other = new byte[] { 1, 1, 2, 3, 5, 8 };
+		byte[] other = new byte[]{1, 1, 2, 3, 5, 8};
 		sut.addOutputAttribute("other", other);
 
 		AttributeMap<Object> result = runAndAssertEnd(sut.getFlowDefinition(), null).getOutput();

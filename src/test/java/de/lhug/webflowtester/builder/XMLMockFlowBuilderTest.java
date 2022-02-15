@@ -1,21 +1,20 @@
 package de.lhug.webflowtester.builder;
 
-import de.lhug.webflowtester.builder.configuration.FlowTestContext;
-import de.lhug.webflowtester.builder.configuration.XMLMockFlowConfiguration;
-import de.lhug.webflowtester.stub.StubFlow;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.context.NoSuchMessageException;
-import org.springframework.webflow.definition.registry.NoSuchFlowDefinitionException;
-import org.springframework.webflow.test.MockRequestControlContext;
-
-import java.util.Locale;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import de.lhug.webflowtester.builder.configuration.FlowTestContext;
+import de.lhug.webflowtester.builder.configuration.XMLMockFlowConfiguration;
+import de.lhug.webflowtester.stub.StubFlow;
+import java.util.Locale;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.context.NoSuchMessageException;
+import org.springframework.webflow.definition.registry.NoSuchFlowDefinitionException;
+import org.springframework.webflow.test.MockRequestControlContext;
 
 public class XMLMockFlowBuilderTest {
 
@@ -24,7 +23,7 @@ public class XMLMockFlowBuilderTest {
 
 	private XMLMockFlowBuilder sut;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		configuration = new XMLMockFlowConfiguration("/simpleFlows/standaloneFlow.xml");
 		context = new FlowTestContext(new SomeBean("I am groot"));

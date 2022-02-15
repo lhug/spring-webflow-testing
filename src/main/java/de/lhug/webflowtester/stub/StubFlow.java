@@ -36,11 +36,11 @@ public class StubFlow implements FlowDefinitionHolder {
 
 	/**
 	 * Creates an initial instance of this {@link FlowDefinitionHolder}.
-	 * 
+	 *
 	 * As the Flow is required to end immediately, an endStateId is required to
 	 * ensure this happens. The endStateId can be changed dynamically using
 	 * {@link #setEndStateId}.
-	 * 
+	 *
 	 * @param flowId     the String identifying the flow, not {@code null}
 	 * @param endStateId the String to be emitted as
 	 *                   {@link org.springframework.webflow.execution.FlowExecutionOutcome}
@@ -55,10 +55,10 @@ public class StubFlow implements FlowDefinitionHolder {
 
 	/**
 	 * Updates the initially supplied endStateId
-	 * 
+	 *
 	 * After this is called, a subsequent call to {@link #getFlowDefinition()} will
 	 * trigger a Flow Rebuild
-	 * 
+	 *
 	 * @param endStateId the new String to be assigned as
 	 *                   {@link org.springframework.webflow.execution.FlowExecutionOutcome},
 	 *                   not {@code null}
@@ -88,11 +88,11 @@ public class StubFlow implements FlowDefinitionHolder {
 
 	/**
 	 * Used to fetch the input arguments passed to the flow
-	 * 
+	 *
 	 * Specifically, this creates a copy of all captured input arguments, clears all
 	 * captured input arguments, and then returns the copy as an
 	 * {@link AttributeMap}
-	 * 
+	 *
 	 * @return a copy of all captured input attributes, never <code>null</code>
 	 */
 	public AttributeMap<Object> getInputAttributes() {
@@ -104,10 +104,10 @@ public class StubFlow implements FlowDefinitionHolder {
 
 	/**
 	 * Adds a single Parameter to be emitted when the flow ends
-	 * 
+	 *
 	 * This can be used to generate different return values from the sub flow, apart
 	 * from the obvious end state id.
-	 * 
+	 *
 	 * @param key   the String key to which the value will be bound
 	 * @param value the actual value Object
 	 */
