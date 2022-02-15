@@ -107,8 +107,7 @@ public abstract class ExternalizedMockFlowBuilder implements MockFlowBuilder {
      */
     protected void registerBeans(MockFlowBuilderContext builderContext) {
         if (context != null) {
-            context.getBeans().entrySet()
-                    .forEach(e -> builderContext.registerBean(e.getKey(), e.getValue()));
+            context.getBeans().forEach(builderContext::registerBean);
         }
     }
 
@@ -149,7 +148,7 @@ public abstract class ExternalizedMockFlowBuilder implements MockFlowBuilder {
      * Subclasses may override to add default messages to the flow. To keep the
      * messages as default, but overridable, call
      * {@code super.registerMessages(StaticMessageSource)} after adding the
-     * fallbacks, if the messages should be unoverridable, add them after calling
+     * fallbacks, if the messages should be un-overridable, add them after calling
      * {@code super}
      * </p>
      * <p>

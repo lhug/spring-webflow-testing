@@ -61,7 +61,7 @@ public class FlowTestContext {
     }
 
     /**
-     * Used to determine if a bean with the given name has already been registeres
+     * Used to determine if a bean with the given name has already been registered
      * 
      * More formally, this checks if a bean name that {@link String#equals(Object)
      * equals} the offer has already been registered. This does not check for the
@@ -121,7 +121,7 @@ public class FlowTestContext {
     }
 
     /**
-     * Returns an unmodifiable view of the registered Subflows.
+     * Returns an unmodifiable view of the registered SubFlows.
      * 
      * Note that changes made to the contents might still write-through to the
      * registered objects.
@@ -137,7 +137,7 @@ public class FlowTestContext {
      * Adds a {@link FlowDefinitionHolder} implementation to the context.
      * 
      * The suggested class to use is {@link de.lhug.webflowtester.stub.StubFlow} as
-     * that is an easy to use implementation
+     * that is an easy-to-use implementation
      * 
      * @param subFlow the {@link FlowDefinitionHolder} to be registered
      */

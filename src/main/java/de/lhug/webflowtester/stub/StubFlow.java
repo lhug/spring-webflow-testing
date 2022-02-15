@@ -28,7 +28,7 @@ public class StubFlow implements FlowDefinitionHolder {
 
 	@Getter
 	private String endStateId;
-	private MutableAttributeMap<Object> inputAttributes = new LocalAttributeMap<>();
+	private final MutableAttributeMap<Object> inputAttributes = new LocalAttributeMap<>();
 	@Setter
 	private Map<String, Object> outputAttributes = new HashMap<>();
 

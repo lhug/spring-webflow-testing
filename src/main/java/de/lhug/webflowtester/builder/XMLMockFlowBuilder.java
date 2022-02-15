@@ -1,5 +1,6 @@
 package de.lhug.webflowtester.builder;
 
+import de.lhug.webflowtester.builder.context.MockFlowBuilderContext;
 import org.springframework.webflow.config.FlowDefinitionResource;
 import org.springframework.webflow.engine.builder.FlowBuilder;
 import org.springframework.webflow.engine.builder.model.FlowModelFlowBuilder;
@@ -53,7 +54,7 @@ public class XMLMockFlowBuilder extends ExternalizedMockFlowBuilder {
      * </ol>
      * 
      * @see ExternalizedMockFlowBuilder#buildFlow() buildFlow
-     * @see ExternalizedMockFlowBuilder#registerBeans(MockFlowBuilderContext)
+     * @see ExternalizedMockFlowBuilder#registerBeans(MockFlowBuilderContext) 
      *      registerBeans
      */
     @Override

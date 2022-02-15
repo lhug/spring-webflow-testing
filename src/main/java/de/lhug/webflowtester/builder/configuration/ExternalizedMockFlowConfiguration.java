@@ -38,10 +38,8 @@ public class ExternalizedMockFlowConfiguration {
      * load the given resources. If a {@link #withBasePath(String) base path} is
      * given, it will be registered with the factory at this point. This implies
      * that the base path can not be automatically set by this configuration
-     * object and instead must be changed by calling
-     * {@link ExternalizedMockFlowConfiguration#getResourceFactory()}, followed
-     * by {@link FlowDefinitionResourceFactory#setBasePath(String)}. As this
-     * method is {@code package-private}, this is not intended to happen.
+     * object and instead must be changed by calling{@link FlowDefinitionResourceFactory#setBasePath(String)}.
+     * As this method is {@code package-private}, this is not intended to happen.
      * 
      * @return the initialized {@link FlowDefinitionResourceFactory}
      */
@@ -131,7 +129,7 @@ public class ExternalizedMockFlowConfiguration {
      * chain, as it ends with the described {@link #toString()}-fallback
      * solution. The returned {@link ResourceMapper} must create the
      * {@link FlowDefinitionResource} by itself, as the factory used in this
-     * class is not intended to be used outside of this class.
+     * class is not intended to be used outside this class.
      * 
      * @param offer
      *            the {@link Class} of the {@code resource location} passed to

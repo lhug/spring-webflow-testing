@@ -110,9 +110,8 @@ public class MockFlowTester {
 	/**
 	 * Starts the flow.
 	 * <p>
-	 * Discards the previous {@link FlowExecution} if present, and all other passed
-	 * information, and creates a fresh instance. This does not generate any
-	 * warnings.
+	 * Discards the previous {@link FlowExecution} if present, and all other information,
+	 * and creates a fresh instance. This does not generate any warnings.
 	 * <p>
 	 * Methods on requiring an active session can be called after this.
 	 *
@@ -127,8 +126,8 @@ public class MockFlowTester {
 	/**
 	 * Starts the flow with the given input arguments.
 	 * <p>
-	 * Discards the previous {@link FlowExecution} if present, and all other passed
-	 * information, and creates a fresh instance, directly passing the input
+	 * Discards the previous {@link FlowExecution} if present, and all other information,
+	 * and creates a fresh instance, directly passing the input
 	 * arguments. This does not generate any warnings.
 	 * <p>
 	 * Methods on requiring an active session can be called after this.
@@ -288,7 +287,7 @@ public class MockFlowTester {
 
 	/**
 	 * Asserts that the flow returned with the given outcome, meaning the given
-	 * endState Id.
+	 * end state id.
 	 * <p>
 	 * Will raise an {@link AssertionError} if the outcome id was not as expected.
 	 *

@@ -8,11 +8,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import lombok.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.StaticMessageSource;
-
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
 
 /**
  * Convenience container class used to pass preconfigured messages to the
@@ -87,7 +85,9 @@ public class MessageContainer {
      * Simple container class for message key and value
      *
      */
-    @Value
+    @Getter
+    @AllArgsConstructor
+    @EqualsAndHashCode
     public static class Message {
         final String key;
         final String value;

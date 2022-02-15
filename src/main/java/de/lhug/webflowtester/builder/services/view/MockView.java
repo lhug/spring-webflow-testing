@@ -34,11 +34,10 @@ import lombok.Setter;
 import lombok.extern.java.Log;
 
 /**
- * A Mock view implementation that simply holds a reference to a identifier for
+ * A Mock view implementation that simply holds a reference to an identifier for
  * a view that should be rendered. Useful to assert that the right view was
  * selected as part of a flow execution test, without actually exercising any
  * real rendering logic.
- *
  */
 @RequiredArgsConstructor
 @Log
@@ -169,7 +168,7 @@ public class MockView implements View {
 	private boolean shouldValidate(TransitionDefinition transition) {
 		Boolean validationAttribute = getValidationAttribute(transition);
 		if (validationAttribute != null) {
-			return validationAttribute.booleanValue();
+			return validationAttribute;
 		}
 		return true;
 	}
