@@ -39,7 +39,7 @@ public class MockViewDatabindingTest {
 	public void shouldBindEmptyBeanModelAsModelAttributeOfView() throws Exception {
 		tester.startFlow();
 
-		tester.assertCurrentStateIs("start");
+		assertThat(tester.getCurrentStateId(), is("start"));
 		Object currentModel = getCurrentModelObject();
 		assertThat(currentModel, is(new BeanModel()));
 	}
@@ -133,6 +133,6 @@ public class MockViewDatabindingTest {
 
 		tester.resumeFlow(parameters);
 
-		tester.assertCurrentStateIs("start");
+		assertThat(tester.getCurrentStateId(), is("start"));
 	}
 }

@@ -1,17 +1,21 @@
 package de.lhug.webflowtester.executor;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
+
 import de.lhug.webflowtester.builder.MockFlowBuilder;
 import de.lhug.webflowtester.builder.XMLMockFlowBuilder;
 import de.lhug.webflowtester.builder.configuration.FlowTestContext;
 import de.lhug.webflowtester.builder.configuration.XMLMockFlowConfiguration;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import org.junit.Test;
 import org.springframework.binding.message.Message;
 import org.springframework.binding.message.MessageBuilder;
@@ -150,71 +154,66 @@ public class MockFlowTesterTest {
 		assertThat(argument).isEqualTo("well, why not");
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void shouldThrowIllegalStateExceptionWhenAssertingEndedFlowExecutionBeforeFlowWasStarted() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 
-		sut.assertFlowExecutionEnded();
+		assertThatThrownBy(() -> sut.executionHasEnded())
+				.isInstanceOf((IllegalStateException.class))
+				.hasMessage("Flow must be started before assertions can be made.");
 	}
 
-	@Test(expected = AssertionError.class)
-	public void shouldThrowExceptionWhenAssertingEndedFlowExecutionOnActiveFlow() {
+	@Test
+	public void shouldReturnFalseWhenFlowIsActive() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
 
-		sut.assertFlowExecutionEnded();
+		assertThat(sut.executionHasEnded()).isFalse();
 	}
 
 	@Test
-	public void shouldAssertFlowExecutionHasEnded() {
+	public void shouldReturnTrueWhenFlowExecutionHasEnded() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
 		sut.setEventId("close");
 		sut.resumeFlow();
 
-		sut.assertFlowExecutionEnded();
+		assertThat(sut.executionHasEnded()).isTrue();
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void shouldThrowIllegalStateExceptionWhenAssertingOutcomeBeforeFlowWasStarted() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 
-		sut.assertFlowOutcomeIs("bye");
+		assertThatThrownBy(() -> sut.getFlowOutcome())
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("Flow must be started before assertions can be made.");
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void shouldThrowExceptionWhenAssertionOutcomeBeforeFlowHasEnded() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
 
-		sut.assertFlowOutcomeIs("bye");
-	}
-
-	@Test(expected = AssertionError.class)
-	public void shouldThrowExceptionWhenOutcomeIsNotAsExpected() {
-		initConfigFrom("/simpleFlows/standaloneFlow.xml");
-		initSut();
-		sut.startFlow();
-		sut.setEventId("close");
-		sut.resumeFlow();
-
-		sut.assertFlowOutcomeIs("jupiter");
+		assertThatThrownBy(() -> sut.getFlowOutcome())
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("Flow Execution must have ended to assert the outcome");
 	}
 
 	@Test
-	public void shouldAssertCorrectFlowExecutionOutcome() {
+	public void shouldReturnFlowOutcome() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
 		sut.setEventId("close");
 		sut.resumeFlow();
 
-		sut.assertFlowOutcomeIs("bye");
+		assertThat(sut.getFlowOutcome()).isEqualTo("bye");
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -245,50 +244,56 @@ public class MockFlowTesterTest {
 		assertThat(result.get("out")).isEqualTo("hooray");
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void shouldThrowExceptionWhenAssertingExternalRedirectBeforeFlowWasStarted() {
 		initConfigFrom("/simpleFlows/flowWithOutput.xml");
 		initSut();
 
-		sut.assertExternalRedirectTo("http://www.google.de");
+		assertThatThrownBy(() -> sut.getExternalRedirectUrl())
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("Flow must be started before assertions can be made.");
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void shouldThrowExceptionWhenAssertingExternalRedirectBeforeFlowHasEnded() {
 		initConfigFrom("/simpleFlows/flowWithOutput.xml");
 		initSut();
 		sut.startFlow(Collections.singletonMap("to", "bananas"));
 
-		sut.assertExternalRedirectTo("http://www.google.de");
-	}
-
-	@Test(expected = AssertionError.class)
-	public void shouldThrowExceptionWhenAssertingExternalRedirectToWrongUrl() {
-		initConfigFrom("/simpleFlows/flowWithOutput.xml");
-		initSut();
-		sut.startFlow(Collections.singletonMap("to", "redirect"));
-
-		sut.assertExternalRedirectTo("http://www.bing.com");
+		assertThatThrownBy(() -> sut.getExternalRedirectUrl())
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("Flow Execution must have ended to assert the outcome");
 	}
 
 	@Test
-	public void shouldAssertExternalRedirect() {
+	public void shouldReturnNullWhenFlowDidNotRenderRedirectUrl() {
 		initConfigFrom("/simpleFlows/flowWithOutput.xml");
 		initSut();
-		sut.startFlow(Collections.singletonMap("to", "redirect"));
+		sut.startFlow(Map.of("to", "output"));
 
-		sut.assertExternalRedirectTo("http://www.google.de");
+		assertThat(sut.getExternalRedirectUrl()).isNull();
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
+	public void shouldReturnExternalRedirectUrl() {
+		initConfigFrom("/simpleFlows/flowWithOutput.xml");
+		initSut();
+		sut.startFlow(Map.of("to", "redirect"));
+
+		assertThat(sut.getExternalRedirectUrl()).isEqualTo("http://www.google.de");
+	}
+
+	@Test
 	public void shouldThrowExceptionWhenTryingToAccessCurrentStateBeforeFlowWasStarted() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 
-		sut.assertCurrentStateIs("start");
+		assertThatThrownBy(() -> sut.getCurrentStateId())
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("Flow must be started before assertions can be made.");
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void shouldThrowExceptionWhenTryingToAccessCurrentStateAfterFlowHasEnded() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
@@ -296,25 +301,18 @@ public class MockFlowTesterTest {
 		sut.setEventId("close");
 		sut.resumeFlow();
 
-		sut.assertCurrentStateIs("start");
-	}
-
-	@Test(expected = AssertionError.class)
-	public void shouldThrowExceptionWhenAssertingWrongStateId() {
-		initConfigFrom("/simpleFlows/standaloneFlow.xml");
-		initSut();
-		sut.startFlow();
-
-		sut.assertCurrentStateIs("step");
+		assertThatThrownBy(() -> sut.getCurrentStateId())
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("Flow Execution must be active to assert current events");
 	}
 
 	@Test
-	public void shouldAssertCurrentStateId() {
+	public void shouldReturnCurrentStateId() {
 		initConfigFrom("/simpleFlows/standaloneFlow.xml");
 		initSut();
 		sut.startFlow();
 
-		sut.assertCurrentStateIs("start");
+		assertThat(sut.getCurrentStateId()).isEqualTo("start");
 	}
 
 	@Test(expected = IllegalStateException.class)
