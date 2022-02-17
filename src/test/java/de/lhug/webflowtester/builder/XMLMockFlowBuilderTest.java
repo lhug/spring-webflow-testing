@@ -16,7 +16,7 @@ import org.springframework.context.NoSuchMessageException;
 import org.springframework.webflow.definition.registry.NoSuchFlowDefinitionException;
 import org.springframework.webflow.test.MockRequestControlContext;
 
-public class XMLMockFlowBuilderTest {
+class XMLMockFlowBuilderTest {
 
 	private XMLMockFlowConfiguration configuration;
 	private FlowTestContext context;
@@ -24,7 +24,7 @@ public class XMLMockFlowBuilderTest {
 	private XMLMockFlowBuilder sut;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		configuration = new XMLMockFlowConfiguration("/simpleFlows/standaloneFlow.xml");
 		context = new FlowTestContext(new SomeBean("I am groot"));
 		sut = new XMLMockFlowBuilder(configuration);
@@ -37,7 +37,7 @@ public class XMLMockFlowBuilderTest {
 	}
 
 	@Test
-	public void shouldBuildFlowFromConfiguration() {
+	void shouldBuildFlowFromConfiguration() {
 		var result = sut.buildFlow();
 
 		assertThat(result.getId()).isEqualTo("standaloneFlow");
@@ -45,7 +45,7 @@ public class XMLMockFlowBuilderTest {
 	}
 
 	@Test
-	public void shouldBuildFlowFromConfigurationAndContext() {
+	void shouldBuildFlowFromConfigurationAndContext() {
 		configuration = new XMLMockFlowConfiguration("/simpleFlows/flowWithDependentBeans.xml");
 		sut = new XMLMockFlowBuilder(configuration);
 
@@ -56,12 +56,12 @@ public class XMLMockFlowBuilderTest {
 	}
 
 	@Test
-	public void shouldOnlyBuildFlowOnce() {
+	void shouldOnlyBuildFlowOnce() {
 		assertThat(sut.buildFlow()).isSameAs(sut.buildFlow());
 	}
 
 	@Test
-	public void shouldBuildFlowWithParent() {
+	void shouldBuildFlowWithParent() {
 		configuration = new XMLMockFlowConfiguration("/inheritanceFlows/childFlow.xml");
 		configuration.addParentFlow("/inheritanceFlows/parentFlow.xml");
 		sut = new XMLMockFlowBuilder(configuration);
@@ -73,7 +73,7 @@ public class XMLMockFlowBuilderTest {
 	}
 
 	@Test
-	public void shouldBeUnableToEnterSubflowStateWhenNoSubflowIsRegistered() {
+	void shouldBeUnableToEnterSubflowStateWhenNoSubflowIsRegistered() {
 		configuration = new XMLMockFlowConfiguration("/subFlows/flow.xml");
 		sut = new XMLMockFlowBuilder(configuration);
 
@@ -87,7 +87,7 @@ public class XMLMockFlowBuilderTest {
 	}
 
 	@Test
-	public void shouldRegisterStubFlowsInBuiltContext() {
+	void shouldRegisterStubFlowsInBuiltContext() {
 		configuration = new XMLMockFlowConfiguration("/subFlows/flow.xml");
 		context.addSubFlow(new StubFlow("subFlow", "end"));
 		sut = new XMLMockFlowBuilder(configuration);
@@ -103,7 +103,7 @@ public class XMLMockFlowBuilderTest {
 	}
 
 	@Test
-	public void shouldRegisterPassedMessages() {
+	void shouldRegisterPassedMessages() {
 		configuration = new XMLMockFlowConfiguration("/subFlows/flow.xml");
 		context.getMessages(Locale.getDefault()).addMessage("key", "value");
 		sut = new XMLMockFlowBuilder(configuration);
@@ -116,13 +116,15 @@ public class XMLMockFlowBuilderTest {
 	}
 
 	@Test
-	public void shouldNotAddMessagesWhenContextIsNotSet() {
+	void shouldNotAddMessagesWhenContextIsNotSet() {
 		configuration = new XMLMockFlowConfiguration("/subFlows/flow.xml");
 		context.getMessages(Locale.getDefault()).addMessage("key", "value");
 		sut = new XMLMockFlowBuilder(configuration);
 		var applicationContext = sut.buildFlow().getApplicationContext();
 
-		assertThatThrownBy(() -> applicationContext.getMessage("key", null, Locale.getDefault()))
+		var locale = Locale.getDefault();
+
+		assertThatThrownBy(() -> applicationContext.getMessage("key", null, locale))
 				.isInstanceOf(NoSuchMessageException.class);
 	}
 }

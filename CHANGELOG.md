@@ -1,5 +1,11 @@
 # Changelog for Spring-Webflow-Testing
 
+## V1.4
+
+* removed junit 4 dependency
+* prepared removal of junit 5 compile dependency
+* minor improvements
+
 ## V1.3
 
 * updated gradle wrapper and scripts to version 7.0.1

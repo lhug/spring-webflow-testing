@@ -9,34 +9,35 @@ import java.util.Locale;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-public class MessageContainerTest {
+class MessageContainerTest {
 
 	private final MessageContainer sut = new MessageContainer();
 
 	@Test
-	public void shouldReturnMessagesMap() {
+	void shouldReturnMessagesMap() {
 		var result = sut.getAllMessages();
 
 		assertThat(result).isNotNull();
 	}
 
 	@Test
-	public void messagesMapShouldBeUnmodifiable() {
-		var messages = sut.getAllMessages();
+	void messagesMapShouldBeUnmodifiable() {
+		var results = sut.getAllMessages();
 
-		assertThatThrownBy(() -> messages.put(Locale.CHINESE, new Messages()))
+		var messages = new Messages();
+		assertThatThrownBy(() -> results.put(Locale.CHINESE, messages))
 				.isInstanceOf(UnsupportedOperationException.class);
 	}
 
 	@Test
-	public void shouldReturnEmptyMessagesObjectWhenNoMessagesForLocaleHaveBeenAdded() {
+	void shouldReturnEmptyMessagesObjectWhenNoMessagesForLocaleHaveBeenAdded() {
 		var result = sut.getMessages(Locale.TAIWAN);
 
 		assertThat(result.messageStore).isEmpty();
 	}
 
 	@Test
-	public void shouldAddMessageForLocale() {
+	void shouldAddMessageForLocale() {
 		assertThat(sut.getAllMessages()).isEmpty();
 
 		sut.addMessage(Locale.PRC, "key", "value");
@@ -48,7 +49,7 @@ public class MessageContainerTest {
 	}
 
 	@Test
-	public void shouldAllowAddingMessagesForLocale() {
+	void shouldAllowAddingMessagesForLocale() {
 		var messages = sut.getMessages(Locale.CHINESE);
 
 		messages.addMessage("left", "right");
@@ -57,7 +58,7 @@ public class MessageContainerTest {
 	}
 
 	@Test
-	public void shouldAllowAddingMultipleMessagesForLocale() {
+	void shouldAllowAddingMultipleMessagesForLocale() {
 		var messages = sut.getMessages(Locale.GERMANY);
 
 		messages
@@ -70,7 +71,7 @@ public class MessageContainerTest {
 	}
 
 	@Test
-	public void shouldAllowAddingMultipleMessagesWithLocale() {
+	void shouldAllowAddingMultipleMessagesWithLocale() {
 		var messages = Map.ofEntries(
 				Map.entry("a", "b"),
 				Map.entry("c", "d"));

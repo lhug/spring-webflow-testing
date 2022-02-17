@@ -4,7 +4,8 @@ A utility library to allow simple testing of Spring WebFlows
 
 ## Disclaimer
 
-This library is created with `JUnit 4.12` and `spring WebFlow 2.5.1-RELEASE`, utilizing JDK 8. So far, no guarantees are made about using it on other JDK versions or dependency versions.
+This library is created with `JUnit Jupiter` and `spring WebFlow 2.5.1-RELEASE`, utilizing JDK 11.
+It requires the webflow dependency on the classpath but should not add it by itself.
 
 ## Overview
 
@@ -32,8 +33,8 @@ The library also offers an `XMLMockFlowBuilder` to build a testable flow definit
 
 ## Restrictions
 
-* Currently there is no way and no plan to support global flow attributes.
-* Currently there is no way of adding a preconfigured Spring-Context as provided by using the `SpringRunner`
+* Currently, there is no way and no plan to support global flow attributes.
+* Currently, there is no way of adding a preconfigured Spring-Context as provided by using the `SpringRunner`
 * Springs `Validator`-Bean is **not** being automatically instantiated. It can, however, be added manually.
 * All messages, that do not provide a default text, **must** be added explicitly. If not, a `NoSuchMessageException` is raised during runtime.
 

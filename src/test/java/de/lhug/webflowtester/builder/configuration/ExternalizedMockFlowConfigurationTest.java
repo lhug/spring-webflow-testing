@@ -8,17 +8,17 @@ import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ExternalizedMockFlowConfigurationTest {
+class ExternalizedMockFlowConfigurationTest {
 
 	private ExternalizedMockFlowConfiguration sut;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		sut = new ExternalizedMockFlowConfiguration("/simpleFlows/standaloneFlow.xml");
 	}
 
 	@Test
-	public void shouldCreateConfigurationFromUrl() throws Exception {
+	void shouldCreateConfigurationFromUrl() throws Exception {
 		var url = getClass().getResource("/simpleFlows/standaloneFlow.xml");
 
 		sut = new ExternalizedMockFlowConfiguration(url);
@@ -30,7 +30,7 @@ public class ExternalizedMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldCreateConfigurationFromFile() throws Exception {
+	void shouldCreateConfigurationFromFile() throws Exception {
 		var file = new File("src/test/resources/simpleFlows/flowWithDependentBeans.xml");
 
 		sut = new ExternalizedMockFlowConfiguration(file);
@@ -42,7 +42,7 @@ public class ExternalizedMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldCreateConfigurationFromClasspath() {
+	void shouldCreateConfigurationFromClasspath() {
 		String resource = "/simpleFlows/standaloneFlow.xml";
 
 		sut = new ExternalizedMockFlowConfiguration(resource);
@@ -54,7 +54,7 @@ public class ExternalizedMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldCreateConfigurationWithFallingBackToString() {
+	void shouldCreateConfigurationWithFallingBackToString() {
 		sut = new ExternalizedMockFlowConfiguration(List.of("content, more content"));
 
 		var mainResource = sut.getResource();
@@ -64,7 +64,7 @@ public class ExternalizedMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldCreateFlowDefinitionResourceFromURL() throws Exception {
+	void shouldCreateFlowDefinitionResourceFromURL() throws Exception {
 		var url = getClass().getResource("/simpleFlows/standaloneFlow.xml");
 
 		var result = sut.createResource(Objects.requireNonNull(url));
@@ -75,7 +75,7 @@ public class ExternalizedMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldCreateFlowDefinitionResourceFromFile() throws Exception {
+	void shouldCreateFlowDefinitionResourceFromFile() throws Exception {
 		var file = new File("src/test/resources/simpleFlows/flowWithDependentBeans.xml");
 
 		var result = sut.createResource(file);
@@ -86,7 +86,7 @@ public class ExternalizedMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldCreateFlowDefinitionResourceFromClasspathString() {
+	void shouldCreateFlowDefinitionResourceFromClasspathString() {
 		String resource = "/simpleFlows/standaloneFlow.xml";
 
 		var result = sut.createResource(resource);
@@ -97,7 +97,7 @@ public class ExternalizedMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldCreateFlowDefinitionResourceByCallingToStringOnObject() {
+	void shouldCreateFlowDefinitionResourceByCallingToStringOnObject() {
 		var result = sut.createResource(List.of("content"));
 
 		assertThat(result.getId()).isEqualTo("[content]");
@@ -105,7 +105,7 @@ public class ExternalizedMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldDeriveIdByResolvingWithBasePath() {
+	void shouldDeriveIdByResolvingWithBasePath() {
 		sut = new ExternalizedMockFlowConfiguration("resources/simpleFlows/standaloneFlow.xml");
 
 		sut.withBasePath("src/test/");

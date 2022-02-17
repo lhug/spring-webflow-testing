@@ -15,30 +15,30 @@ import org.springframework.webflow.engine.impl.FlowExecutionImpl;
 import org.springframework.webflow.execution.FlowExecution;
 import org.springframework.webflow.execution.FlowExecutionOutcome;
 
-public class StubFlowTest {
+class StubFlowTest {
 
 	private StubFlow sut;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		sut = new StubFlow("flowId", "endStateId");
 	}
 
 	@Test
-	public void shouldThrowExceptionWhenFlowIdIsNull() {
+	void shouldThrowExceptionWhenFlowIdIsNull() {
 
 		assertThatThrownBy(() -> new StubFlow(null, "state"))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
-	public void shouldThrowExceptionWhenEndStateIdIsNull() {
+	void shouldThrowExceptionWhenEndStateIdIsNull() {
 		assertThatThrownBy(() -> new StubFlow("state", null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
-	public void shouldCreateStubFlowWithFlowIdAndEndStateId() {
+	void shouldCreateStubFlowWithFlowIdAndEndStateId() {
 		StubFlow result = new StubFlow("flowId", "endStateId");
 
 		assertThat(result.getFlowDefinitionId()).isEqualTo("flowId");
@@ -46,7 +46,7 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void shouldReturnExecutableFlow() {
+	void shouldReturnExecutableFlow() {
 		FlowDefinition result = sut.getFlowDefinition();
 
 		runAndAssertEnd(result, null);
@@ -63,7 +63,7 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void flowShouldEmitEndStateId() {
+	void flowShouldEmitEndStateId() {
 		FlowDefinition result = sut.getFlowDefinition();
 
 		FlowExecutionOutcome outcome = runAndAssertEnd(result, null);
@@ -72,20 +72,20 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void shouldCacheFlowDefinition() {
+	void shouldCacheFlowDefinition() {
 		FlowDefinition result = sut.getFlowDefinition();
 
 		assertThat(result).isSameAs(sut.getFlowDefinition());
 	}
 
 	@Test
-	public void shouldThrowExceptionWhenTryingToSetNullAsEndStateId() {
+	void shouldThrowExceptionWhenTryingToSetNullAsEndStateId() {
 		assertThatThrownBy(() -> sut.setEndStateId(null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
-	public void shouldEmitUpdatedFlowDefinitionWhenEndStateIdChanges() {
+	void shouldEmitUpdatedFlowDefinitionWhenEndStateIdChanges() {
 		FlowDefinition before = sut.getFlowDefinition();
 
 		sut.setEndStateId("otherEndState");
@@ -99,14 +99,14 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void shouldReturnEmptyMapBeforeFlowWasExecuted() {
+	void shouldReturnEmptyMapBeforeFlowWasExecuted() {
 		AttributeMap<Object> result = sut.getInputAttributes();
 
 		assertThat(result.asMap()).isEmpty();
 	}
 
 	@Test
-	public void shouldReturnPassedInputAttributesWhenFlowWasExecutedWithInputAttributes() {
+	void shouldReturnPassedInputAttributesWhenFlowWasExecutedWithInputAttributes() {
 		LocalAttributeMap<String> input = new LocalAttributeMap<>("key", "input");
 
 		runAndAssertEnd(sut.getFlowDefinition(), input);
@@ -116,7 +116,7 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void shouldResetInputAttributesAfterFetching() {
+	void shouldResetInputAttributesAfterFetching() {
 		LocalAttributeMap<String> input = new LocalAttributeMap<>("key", "input");
 		runAndAssertEnd(sut.getFlowDefinition(), input);
 		sut.getInputAttributes();
@@ -127,7 +127,7 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void shouldEmitOutputAttributes() {
+	void shouldEmitOutputAttributes() {
 		sut.addOutputAttribute("out", "put");
 
 		FlowExecutionOutcome result = runAndAssertEnd(sut.getFlowDefinition(), null);
@@ -136,7 +136,7 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void shouldEmitMultipleOutputAttributes() {
+	void shouldEmitMultipleOutputAttributes() {
 		sut.addOutputAttribute("key", "value");
 		byte[] other = new byte[]{1, 1, 2, 3, 5, 8};
 		sut.addOutputAttribute("other", other);
@@ -148,7 +148,7 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void shouldEmitPassedOutputMap() {
+	void shouldEmitPassedOutputMap() {
 		sut.setOutputAttributes(Collections.singletonMap("left", "right"));
 
 		AttributeMap<Object> result = runAndAssertEnd(sut.getFlowDefinition(), null).getOutput();
@@ -157,7 +157,7 @@ public class StubFlowTest {
 	}
 
 	@Test
-	public void shouldUpdateOutputAttributesAfterAssembly() {
+	void shouldUpdateOutputAttributesAfterAssembly() {
 		FlowDefinition definition = sut.getFlowDefinition();
 
 		sut.addOutputAttribute("some", "value");

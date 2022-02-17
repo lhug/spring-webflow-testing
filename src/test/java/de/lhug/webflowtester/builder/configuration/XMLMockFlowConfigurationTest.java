@@ -6,24 +6,23 @@ import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.Resource;
 import org.springframework.webflow.config.FlowDefinitionResource;
 
-public class XMLMockFlowConfigurationTest {
+class XMLMockFlowConfigurationTest {
 
 	private XMLMockFlowConfiguration sut;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		sut = new XMLMockFlowConfiguration("/inheritanceFlows/childFlow.xml");
 	}
 
 	@Test
-	public void shouldCreateConfigurationFromUrl() throws Exception {
+	void shouldCreateConfigurationFromUrl() throws Exception {
 		URL url = getClass().getResource("/simpleFlows/standaloneFlow.xml");
 
 		sut = new XMLMockFlowConfiguration(url);
@@ -35,7 +34,7 @@ public class XMLMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldCreateConfigurationFromFile() throws Exception {
+	void shouldCreateConfigurationFromFile() throws Exception {
 		File file = new File("src/test/resources/simpleFlows/flowWithDependentBeans.xml");
 
 		sut = new XMLMockFlowConfiguration(file);
@@ -47,7 +46,7 @@ public class XMLMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldCreateConfigurationFromClasspath() throws Exception {
+	void shouldCreateConfigurationFromClasspath() {
 		String resource = "/simpleFlows/standaloneFlow.xml";
 
 		sut = new XMLMockFlowConfiguration(resource);
@@ -59,8 +58,8 @@ public class XMLMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldCreateConfigurationWithFallingBacktoString() throws Exception {
-		sut = new XMLMockFlowConfiguration(Arrays.asList("content, more content"));
+	void shouldCreateConfigurationWithFallingBackToString() {
+		sut = new XMLMockFlowConfiguration(List.of("content, more content"));
 
 		FlowDefinitionResource mainResource = sut.getResource();
 		assertThat(mainResource.getId()).isEqualTo("[content, more content]");
@@ -69,7 +68,7 @@ public class XMLMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldAddParentResourceFromURL() throws Exception {
+	void shouldAddParentResourceFromURL() {
 		URL parentFlow = getClass().getResource("/inheritanceFlows/parentFlow.xml");
 
 		sut.addParentFlow(parentFlow);
@@ -81,7 +80,7 @@ public class XMLMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldAddParentResourceFromFile() throws Exception {
+	void shouldAddParentResourceFromFile() {
 		File file = new File("src/test/resources/inheritanceFlows/parentFlow.xml");
 
 		sut.addParentFlow(file);
@@ -93,7 +92,7 @@ public class XMLMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldAddParentResourceFromClasspathString() throws Exception {
+	void shouldAddParentResourceFromClasspathString() {
 		String classpath = "/inheritanceFlows/parentFlow.xml";
 
 		sut.addParentFlow(classpath);
@@ -105,8 +104,8 @@ public class XMLMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldAddParentResourceWithFallingBackToString() throws Exception {
-		sut.addParentFlow(Arrays.asList("seven, nineteen"));
+	void shouldAddParentResourceWithFallingBackToString() {
+		sut.addParentFlow(List.of("seven, nineteen"));
 
 		assertThat(sut.getFlowResources())
 				.extracting(FlowDefinitionResource::getPath)
@@ -115,7 +114,7 @@ public class XMLMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldAddMultipleParentResources() throws Exception {
+	void shouldAddMultipleParentResources() {
 		sut.addParentFlow("/inheritanceFlows/parentFlow.xml");
 		sut.addParentFlow("/simpleFlows/standaloneFlow.xml");
 
@@ -127,22 +126,22 @@ public class XMLMockFlowConfigurationTest {
 	}
 
 	@Test
-	public void shouldReturnEmptyListWhenNoParentResourcesWereAdded() throws Exception {
+	void shouldReturnEmptyListWhenNoParentResourcesWereAdded() {
 		assertThat(sut.getFlowResources()).isEmpty();
 	}
 
 	@Test
-	public void shouldReturnUnmodifiableListOfResources() throws Exception {
+	void shouldReturnUnmodifiableListOfResources() {
 		List<FlowDefinitionResource> result = sut.getFlowResources();
 
 		var mock = mock(FlowDefinitionResource.class);
 
-		assertThatThrownBy(() -> result.add(mock(FlowDefinitionResource.class)))
+		assertThatThrownBy(() -> result.add(mock))
 				.isInstanceOf(UnsupportedOperationException.class);
 	}
 
 	@Test
-	public void shouldDeriveIdByResolvingWithBasePath() throws Exception {
+	void shouldDeriveIdByResolvingWithBasePath() {
 		sut.addParentFlow("resources/inheritanceFlows/parentFlow.xml");
 
 		sut.withBasePath("src/test");

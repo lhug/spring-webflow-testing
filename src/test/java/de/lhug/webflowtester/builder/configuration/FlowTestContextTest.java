@@ -20,7 +20,7 @@ import lombok.Getter;
 import org.junit.jupiter.api.Test;
 import org.springframework.webflow.definition.registry.FlowDefinitionHolder;
 
-public class FlowTestContextTest {
+class FlowTestContextTest {
 
 	private FlowTestContext sut = new FlowTestContext();
 
@@ -34,14 +34,14 @@ public class FlowTestContextTest {
 	}
 
 	@Test
-	public void shouldReportFalseWhenNoBeanHasBeenAdded() {
+	void shouldReportFalseWhenNoBeanHasBeenAdded() {
 		boolean result = sut.containsBean(offer);
 
 		assertThat(result).isFalse();
 	}
 
 	@Test
-	public void shouldReportTrueWhenBeanHasBeenAdded() {
+	void shouldReportTrueWhenBeanHasBeenAdded() {
 		sut.addBean(offer);
 
 		boolean result = sut.containsBean(offer);
@@ -50,14 +50,14 @@ public class FlowTestContextTest {
 	}
 
 	@Test
-	public void shouldReportFalseWhenBeanWithGivenNameDoesNotExist() {
+	void shouldReportFalseWhenBeanWithGivenNameDoesNotExist() {
 		boolean result = sut.containsBeanWithName("testBean");
 
 		assertThat(result).isFalse();
 	}
 
 	@Test
-	public void shouldReportTrueWhenBeanWithGivenNameHasBeenAdded() {
+	void shouldReportTrueWhenBeanWithGivenNameHasBeenAdded() {
 		sut.addBean("testBean", offer);
 
 		boolean result = sut.containsBeanWithName("testBean");
@@ -66,7 +66,7 @@ public class FlowTestContextTest {
 	}
 
 	@Test
-	public void shouldAddTestBeanWithGeneratedName() {
+	void shouldAddTestBeanWithGeneratedName() {
 		sut.addBean(offer);
 
 		boolean result = sut.containsBeanWithName("testBean");
@@ -75,7 +75,7 @@ public class FlowTestContextTest {
 	}
 
 	@Test
-	public void shouldAddBeanWithGeneratedName() {
+	void shouldAddBeanWithGeneratedName() {
 		List<String> bean = new ArrayList<>();
 		bean.add("content");
 		sut.addBean(bean);
@@ -86,7 +86,7 @@ public class FlowTestContextTest {
 	}
 
 	@Test
-	public void shouldAddBeanWithGivenName() {
+	void shouldAddBeanWithGivenName() {
 		List<String> bean = new ArrayList<>();
 		bean.add("content");
 		sut.addBean("strings", bean);
@@ -97,7 +97,7 @@ public class FlowTestContextTest {
 	}
 
 	@Test
-	public void shouldReturnViewOfRegisteredBeans() {
+	void shouldReturnViewOfRegisteredBeans() {
 		sut.addBean(offer);
 
 		Map<String, Object> result = sut.getBeans();
@@ -107,7 +107,7 @@ public class FlowTestContextTest {
 	}
 
 	@Test
-	public void shouldReturnUnmodifiableViewOfRegisteredBeans() {
+	void shouldReturnUnmodifiableViewOfRegisteredBeans() {
 		Map<String, Object> result = sut.getBeans();
 
 		assertThatThrownBy(() -> result.put("key", "value"))
@@ -115,7 +115,7 @@ public class FlowTestContextTest {
 	}
 
 	@Test
-	public void shouldCreateContextWithMultipleRegisteredBeansWithGeneratedNames() {
+	void shouldCreateContextWithMultipleRegisteredBeansWithGeneratedNames() {
 		List<String> strings = List.of("string");
 		TestBean testBean = new TestBean("name", 4);
 
@@ -131,14 +131,14 @@ public class FlowTestContextTest {
 	}
 
 	@Test
-	public void shouldReturnEmptyListWhenCalledBeforeAddingSubFlows() {
+	void shouldReturnEmptyListWhenCalledBeforeAddingSubFlows() {
 		List<FlowDefinitionHolder> result = sut.getSubFlows();
 
 		assertThat(result).isEmpty();
 	}
 
 	@Test
-	public void shouldReturnUnmodifiableListOfSubFlows() {
+	void shouldReturnUnmodifiableListOfSubFlows() {
 		List<FlowDefinitionHolder> subFlows = sut.getSubFlows();
 
 		var mock = mock(FlowDefinitionHolder.class);
@@ -148,7 +148,7 @@ public class FlowTestContextTest {
 	}
 
 	@Test
-	public void shouldAddSubFlow() {
+	void shouldAddSubFlow() {
 		StubFlow stub = new StubFlow("flow", "end");
 
 		sut.addSubFlow(stub);
@@ -157,7 +157,7 @@ public class FlowTestContextTest {
 	}
 
 	@Test
-	public void shouldReturnEmptyMessagesWhenNoMessagesAreConfigured() throws Exception {
+	void shouldReturnEmptyMessagesWhenNoMessagesAreConfigured() throws Exception {
 		Messages results = sut.getMessages(Locale.GERMANY);
 
 		var result = extractMessages(results);
@@ -174,7 +174,7 @@ public class FlowTestContextTest {
 	}
 
 	@Test
-	public void shouldAddSingleMessageWithDesiredLocale() throws Exception {
+	void shouldAddSingleMessageWithDesiredLocale() throws Exception {
 		sut.addMessage(Locale.CHINA, "xi", "jinping");
 
 		var messages = extractMessages(sut.getMessages(Locale.CHINA));
@@ -182,7 +182,7 @@ public class FlowTestContextTest {
 	}
 
 	@Test
-	public void shouldAddMultipleMessagesWithDesiredLocale() throws Exception {
+	void shouldAddMultipleMessagesWithDesiredLocale() throws Exception {
 		Map<String, String> values = new HashMap<>();
 		values.put("winnie", "pooh bear");
 		values.put("xi", "jinping");
@@ -198,7 +198,7 @@ public class FlowTestContextTest {
 	}
 
 	@Test
-	public void shouldReturnAllRegisteredMessagesAsMap() throws Exception {
+	void shouldReturnAllRegisteredMessagesAsMap() throws Exception {
 		sut.addMessage(Locale.GERMAN, "Glas", "Wasser");
 		sut.addMessage(Locale.FRENCH, "verre", "eau");
 
@@ -210,10 +210,12 @@ public class FlowTestContextTest {
 	}
 
 	@Test
-	public void returnedMessagesMapShouldBeUnmodifiable() {
+	void returnedMessagesMapShouldBeUnmodifiable() {
 		Map<Locale, Messages> result = sut.getAllMessages();
 
-		assertThatThrownBy(() -> result.put(Locale.GERMAN, new Messages()))
+		var messages = new Messages();
+
+		assertThatThrownBy(() -> result.put(Locale.GERMAN, messages))
 				.isInstanceOf(UnsupportedOperationException.class);
 	}
 }

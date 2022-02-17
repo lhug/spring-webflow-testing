@@ -15,19 +15,19 @@ import org.springframework.binding.expression.Expression;
 import org.springframework.binding.message.Message;
 import org.springframework.webflow.core.collection.MutableAttributeMap;
 
-public class MockViewDataBindingTest {
+class MockViewDataBindingTest {
 
 	private MockFlowTester tester;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		tester = MockFlowTester
 				.from(new XMLMockFlowBuilder(
 						new XMLMockFlowConfiguration("/eventFlows/modelExpressionFlow.xml")));
 	}
 
 	@Test
-	public void shouldBindEmptyBeanModelAsModelAttributeOfView() {
+	void shouldBindEmptyBeanModelAsModelAttributeOfView() {
 		tester.startFlow();
 
 		assertThat(tester.getCurrentStateId()).isEqualTo("start");
@@ -42,7 +42,7 @@ public class MockViewDataBindingTest {
 	}
 
 	@Test
-	public void shouldNotBindValuesWhenNoParametersAreConfigured() {
+	void shouldNotBindValuesWhenNoParametersAreConfigured() {
 		tester.startFlowAt("start");
 		tester.setEventId("continue");
 		var model = createBeanModel();
@@ -69,7 +69,7 @@ public class MockViewDataBindingTest {
 	}
 
 	@Test
-	public void shouldBindAttributesFromRequestParametersToModelObject() {
+	void shouldBindAttributesFromRequestParametersToModelObject() {
 		tester.startFlowAt("start");
 		tester.setEventId("continue");
 		BeanModel model = createBeanModel();
@@ -88,7 +88,7 @@ public class MockViewDataBindingTest {
 	}
 
 	@Test
-	public void shouldAddErrorMessageToMessageContextOnBindingError() {
+	void shouldAddErrorMessageToMessageContextOnBindingError() {
 		tester.startFlowAt("start");
 		tester.setEventId("continue");
 		BeanModel model = createBeanModel();
@@ -115,7 +115,7 @@ public class MockViewDataBindingTest {
 	}
 
 	@Test
-	public void shouldNotLeaveStateOnBindingErrors() {
+	void shouldNotLeaveStateOnBindingErrors() {
 		tester.startFlowAt("start");
 		tester.setEventId("continue");
 		BeanModel model = createBeanModel();

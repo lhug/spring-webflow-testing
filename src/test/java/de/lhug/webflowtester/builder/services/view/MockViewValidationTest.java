@@ -12,12 +12,12 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class MockViewValidationTest {
+class MockViewValidationTest {
 
 	private MockFlowTester tester;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		tester = MockFlowTester
 				.from(new XMLMockFlowBuilder(new XMLMockFlowConfiguration("/eventFlows/validationFlow.xml"))
 						.withContext(flowContext()));
@@ -32,7 +32,7 @@ public class MockViewValidationTest {
 	}
 
 	@Test
-	public void shouldNotValidateIfValidationIsDisabled() {
+	void shouldNotValidateIfValidationIsDisabled() {
 		tester.startFlow();
 		tester.setEventId("doNotValidate");
 
@@ -45,7 +45,7 @@ public class MockViewValidationTest {
 	}
 
 	@Test
-	public void shouldValidateIfValidationIsEnabled() {
+	void shouldValidateIfValidationIsEnabled() {
 		tester.startFlow();
 		tester.setEventId("doValidate");
 
@@ -59,7 +59,7 @@ public class MockViewValidationTest {
 	}
 
 	@Test
-	public void shouldValidateIfValidationIsNotSet() {
+	void shouldValidateIfValidationIsNotSet() {
 		tester.startFlow();
 		tester.setEventId("decideOnValidation");
 
