@@ -152,4 +152,12 @@ class XMLMockFlowConfigurationTest {
 				.extracting(FlowDefinitionResource::getId)
 				.containsExactly("resources/inheritanceFlows");
 	}
+
+	@Test
+	void shouldAllowSettingBasePathByConstructor() {
+		sut = new XMLMockFlowConfiguration("src", "test/resources/simpleFlows/standaloneFlow.xml");
+
+		var result = sut.getResource();
+		assertThat(result.getId()).isEqualTo("test/resources/simpleFlows");
+	}
 }

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.logging.Level;
 
 import org.springframework.binding.expression.EvaluationException;
 import org.springframework.binding.expression.Expression;
@@ -34,10 +35,9 @@ import lombok.Setter;
 import lombok.extern.java.Log;
 
 /**
- * A Mock view implementation that simply holds a reference to an identifier for
- * a view that should be rendered. Useful to assert that the right view was
- * selected as part of a flow execution test, without actually exercising any
- * real rendering logic.
+ * A Mock view implementation that performs data binding and validation
+ * and holds the name of the view to be rendered. Useful for asserting correct view state
+ * behavior prior to rendering.
  */
 @RequiredArgsConstructor
 @Log
@@ -141,8 +141,7 @@ public class MockView implements View {
 			try {
 				return modelExpression.getValue(context);
 			} catch (EvaluationException e) {
-				log.warning("Expression " + modelExpression.getExpressionString()
-						+ " could not be evaluated. Is the requested Object accessible from the view?");
+				log.log(Level.WARNING, "Expression {} could not be evaluated. Is the requested Object accessible from the view?", modelExpression.getExpressionString());
 			}
 		}
 		return null;

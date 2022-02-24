@@ -31,6 +31,18 @@ public class XMLMockFlowConfiguration extends ExternalizedMockFlowConfiguration 
 	}
 
 	/**
+	 * Constructs this configuration object using the given {@code offer} as the
+	 * main flow resource, and resolves against the given {@code basePath}.
+	 *
+	 * @param basePath String the path used as base against which to resolve the flow id
+	 * @param offer an Object representing an XML Flow Resource Location
+	 */
+	public XMLMockFlowConfiguration(String basePath, Object offer) {
+		super(offer);
+		this.withBasePath(basePath);
+	}
+
+	/**
 	 * Registers a resource location object to create a parent flow definition
 	 * from.
 	 *
