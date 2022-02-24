@@ -6,9 +6,18 @@ import de.lhug.webflowtester.builder.XMLMockFlowBuilder;
 import de.lhug.webflowtester.builder.configuration.XMLMockFlowConfiguration;
 import de.lhug.webflowtester.executor.MockFlowTester;
 import de.lhug.webflowtester.helper.BeanModel;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.binding.expression.Expression;
@@ -66,6 +75,37 @@ class MockViewDataBindingTest {
 	private void addBeanModelToFlowScope(BeanModel beanModel) {
 		MutableAttributeMap<Object> flowScope = (MutableAttributeMap<Object>) tester.getScope();
 		flowScope.put("beanModel", beanModel);
+	}
+
+	@Test
+	void shouldLogErrorWhenModelExpressionCannotBeEvaluated() {
+		var handler = addHandler();
+		tester.startFlowAt("start");
+		tester.setEventId("continue");
+
+		tester.resumeFlow();
+
+		assertThat(handler.logs)
+				.singleElement()
+				.extracting(LogRecord::getLevel, this::message)
+				.containsExactly(
+						Level.WARNING,
+						"Expression [beanModel] could not be evaluated. Is the requested Object accessible from the view?");
+	}
+
+	private RecordingHandler addHandler() {
+		var logger = Logger.getLogger(MockView.class.getName());
+		var handler = new RecordingHandler(Level.WARNING);
+		logger.setUseParentHandlers(false);
+		logger.addHandler(handler);
+		return handler;
+	}
+
+	private String message(LogRecord record) {
+		return MessageFormat.format(
+				record.getMessage(),
+				record.getParameters()
+		);
 	}
 
 	@Test
@@ -129,5 +169,31 @@ class MockViewDataBindingTest {
 		tester.resumeFlow(parameters);
 
 		assertThat(tester.getCurrentStateId()).isEqualTo("start");
+	}
+
+	static class RecordingHandler extends Handler {
+
+		final Level level;
+
+		RecordingHandler(Level level) {
+			this.level = level;
+			setLevel(level);
+		}
+
+		final List<LogRecord> logs = new ArrayList<>();
+		@Override
+		public void publish(LogRecord record) {
+			logs.add(record);
+		}
+
+		@Override
+		public void flush() {
+			//intentionally left blank
+		}
+
+		@Override
+		public void close() throws SecurityException {
+			// intentionally left blank
+		}
 	}
 }

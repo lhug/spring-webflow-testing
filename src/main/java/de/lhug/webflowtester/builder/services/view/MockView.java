@@ -141,7 +141,7 @@ public class MockView implements View {
 			try {
 				return modelExpression.getValue(context);
 			} catch (EvaluationException e) {
-				log.log(Level.WARNING, "Expression {} could not be evaluated. Is the requested Object accessible from the view?", modelExpression.getExpressionString());
+				log.log(Level.WARNING, "Expression [{0}] could not be evaluated. Is the requested Object accessible from the view?", modelExpression.getExpressionString());
 			}
 		}
 		return null;
