@@ -387,7 +387,7 @@ class MockFlowTesterTest {
 
 	static class SomeService {
 		@SuppressWarnings("unused") // used in flow
-		void addMessage(MessageContext messageContext) {
+		public void addMessage(MessageContext messageContext) {
 			messageContext.addMessage(new MessageBuilder()
 					.source("service")
 					.info().defaultText("This is a message").build());
